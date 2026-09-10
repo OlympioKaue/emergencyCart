@@ -1,4 +1,4 @@
-﻿using EmergencyCart.Domain.AccountContext.ValueObjects;
+﻿using EmergencyCart.Domain.AccountContext.Entities;
 using FluentValidation;
 
 namespace EmergencyCart.Application.AccountContext.UseCases.Sectors.Create;
@@ -7,18 +7,11 @@ public sealed class Validator : AbstractValidator<Command>
 {
     public Validator()
     {
+        RuleLevelCascadeMode = CascadeMode.Stop;
+
         RuleFor(y => y.name)
             .NotEmpty().WithMessage("The name is required.")
-            .Matches(Name.Pattern).WithMessage("The name is invalid.")
-            .Must(ContainAtLeastTwoWords).WithMessage("The name must contain at least two words (e.g. 'Emergency Room' | 'Medical Clinic').");
-    }
-
-    private static bool ContainAtLeastTwoWords(string name)
-    {
-        var words = name
-            .Trim()
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        return words.Length >= 2;
+            .MaximumLength(60).WithMessage("The name must not exceed 60 characters.")
+            .Matches(Sector.Pattern).WithMessage("Sector name must contain only letters and spaces, with at least one space (e.g., 'Clinica Medica').");
     }
 }

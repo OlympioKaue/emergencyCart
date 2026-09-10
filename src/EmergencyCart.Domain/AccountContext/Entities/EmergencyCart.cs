@@ -7,7 +7,6 @@ public sealed class EmergencyCart : Entity, IAggregateRoots
 {
     private readonly List<CartItem> _cartItems;
 
-    #region Constructors
     private EmergencyCart() : base(Guid.CreateVersion7()) { }
 
     private EmergencyCart(Guid id, Guid sectorId, string code) : base(id)
@@ -17,22 +16,23 @@ public sealed class EmergencyCart : Entity, IAggregateRoots
         Code = code;
         IsActive = true;
     }
-    #endregion
 
-    #region Properties
     public string Code { get; } = string.Empty;
     public bool IsActive { get; } = false;
-    #endregion
-
-    #region Relationships
     public Guid SectorId { get; }
     public Sector Sector { get; } = null!;
     public IReadOnlyCollection<CartItem> CartItems => _cartItems.ToArray();
-    #endregion
 
-    public static EmergencyCart Create(Guid sectorId, string code)
+    public static EmergencyCart Create(Guid sectorId)
     {
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
+        var code = GenerateFrom(id);
         return new EmergencyCart(id, sectorId, code);
+    }
+
+    private static string GenerateFrom(Guid cartId)
+    {
+        var shortCode = cartId.ToString("N")[..8].ToUpperInvariant();
+        return $"CART-{shortCode}";
     }
 }

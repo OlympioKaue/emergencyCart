@@ -28,7 +28,7 @@ namespace EmergencyCart.API.Controllers
                 };
             }
 
-            return Created("", result.Value.message);
+            return Created("", $"{result.Value.Id} - {result.Value.message}");
         }
 
     }

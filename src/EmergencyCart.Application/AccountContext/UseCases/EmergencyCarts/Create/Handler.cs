@@ -1,5 +1,4 @@
 ﻿using EmergencyCart.Application.AccountContext.Repositories.Abstractions;
-using EmergencyCart.Application.AccountContext.Repositories.Abstractions.CodeGenerator;
 using EmergencyCart.Application.SharedContext.Repositories.Abstractions;
 using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.UseCases.Abstractions;
@@ -7,20 +6,21 @@ using EmergencyCart.Application.SharedContext.UseCases.Abstractions;
 namespace EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Create;
 
 public sealed class Handler
-    (ICartCodeGenerator cartCodeGenerator,
-    ISectorRepository sectorRepository,
+    (ISectorRepository sectorRepository,
     IEmergencyCartRepository emergencyCartRepository,
     IUnitOfWork ofWork) : ICommandHandler<Command, Response>
 {
     public async Task<Result<Response>> Handle(Command request, CancellationToken cancellationToken)
     {
-        var sector = await sectorRepository.GetByIdAsync(request.id, cancellationToken);
+        var sector = await sectorRepository.GetByIdAsync(request.sectorId, cancellationToken);
         if (sector is null)
             return Result.Failure<Response>(Error.NotFound("404", "The specified sector was not found."));
 
-        var code = await cartCodeGenerator.GenerateCodeAsync(cancellationToken);
+        var existingCart = await emergencyCartRepository.GetByIdAsync(request.sectorId, cancellationToken);
+        if (existingCart is not null)
+            return Result.Failure<Response>(Error.Conflict("409", "An emergency cart already exists for the specified sector."));
 
-        var cart = EmergencyCart.Domain.AccountContext.Entities.EmergencyCart.Create(sector.Id, code);
+        var cart = EmergencyCart.Domain.AccountContext.Entities.EmergencyCart.Create(sector.Id);
 
         await emergencyCartRepository.AddAsync(cart, cancellationToken);
         await ofWork.CommitAsync(cancellationToken);

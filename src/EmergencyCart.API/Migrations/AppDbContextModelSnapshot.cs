@@ -43,9 +43,11 @@ namespace EmergencyCart.API.Migrations
                     b.HasKey("Id")
                         .HasName("PK_CartItem");
 
-                    b.HasIndex("EmergencyCartId");
-
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("EmergencyCartId", "ItemId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CartItem_EmergencyCartId_ItemId");
 
                     b.ToTable("CartItem", (string)null);
                 });
@@ -58,7 +60,7 @@ namespace EmergencyCart.API.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(25)
+                        .HasMaxLength(60)
                         .HasColumnType("VARCHAR")
                         .HasColumnName("Code");
 
@@ -91,7 +93,7 @@ namespace EmergencyCart.API.Migrations
                         .HasColumnType("BIT")
                         .HasColumnName("IsActive");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Names")
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("VARCHAR")

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmergencyCart.Infrastructure.AccountContext.Repositories.Abstractions;
 
-public class SectorRepository(AppDbContext dbContext) : ISectorRepository
+internal class SectorRepository(AppDbContext dbContext) : ISectorRepository
 {
     public async Task AddAsync(Sector sector, CancellationToken cancellationToken)
     {

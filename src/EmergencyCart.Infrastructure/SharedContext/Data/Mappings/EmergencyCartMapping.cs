@@ -8,29 +8,19 @@ public class EmergencyCartMapping : IEntityTypeConfiguration<EmergencyCart.Domai
 {
     public void Configure(EntityTypeBuilder<Domain.AccountContext.Entities.EmergencyCart> builder)
     {
-        #region Table
         builder.ToTable("EmergencyCart");
         builder.HasKey(cart => cart.Id)
             .HasName("PK_EmergencyCart");
-        #endregion
 
-        #region Column
         builder.Property(cart => cart.Code)
             .HasColumnName("Code")
             .HasColumnType("VARCHAR")
-            .HasMaxLength(25)
+            .HasMaxLength(60)
             .IsRequired(true);
-
-        //builder.Property(cart => cart.Location)
-        //    .HasColumnName("Location")
-        //    .HasColumnType("VARCHAR")
-        //    .HasMaxLength(25)
-        //    .IsRequired(true);
 
         builder.Property(cart => cart.IsActive)
            .HasColumnName("IsActive")
            .HasColumnType("BIT")
            .IsRequired(true);
-        #endregion
     }
 }

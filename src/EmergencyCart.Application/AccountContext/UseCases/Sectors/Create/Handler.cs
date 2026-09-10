@@ -10,12 +10,13 @@ public sealed class Handler(ISectorRepository sectorRepository, IUnitOfWork ofWo
 {
     public async Task<Result<Response>> Handle(Command request, CancellationToken cancellationToken)
     {
+        request = request with { name = Sector.NormalizeSpaces(request.name) };
         var validationResult = Validate(request);
         if (validationResult.IsFailure)
             return Result.Failure<Response>(validationResult.Error);
 
-        var existingSector = await sectorRepository.VerifyExistNameSector(request.name, cancellationToken);
-        if(existingSector)
+        var alreadyExists = await sectorRepository.VerifyExistNameSector(request.name, cancellationToken);
+        if (alreadyExists)
             return Result.Failure<Response>(Error.Conflict("409", "A sector with the same name already exists."));
 
         var sector = Sector.Create(request.name);

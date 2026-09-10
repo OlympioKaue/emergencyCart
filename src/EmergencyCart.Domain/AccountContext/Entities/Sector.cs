@@ -1,17 +1,14 @@
 ﻿using EmergencyCart.Domain.AccountContext.ValueObjects;
 using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
-using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
 
-public sealed class Sector : Entity, IAggregateRoots
+public sealed partial class Sector : Entity, IAggregateRoots
 {
-    #region List of EmergencyCarts
+    public const string Pattern = @"^(?=.*\s)[\p{L}\s]+$";
     private readonly List<EmergencyCart> _emergencyCarts;
-    #endregion
-
-    #region Constructors
 
     private Sector() : base(Guid.CreateVersion7()) { }
     private Sector(Guid id, string name) : base(id)
@@ -21,19 +18,10 @@ public sealed class Sector : Entity, IAggregateRoots
 
         IsActive = true;
     }
-    #endregion
-
-    #region Properties
     public string Names { get; }
     public bool IsActive { get; } = false;
-    #endregion
-
-    #region Relationships
     public IReadOnlyCollection<EmergencyCart> EmergencyCarts => _emergencyCarts.ToArray();
-    #endregion
 
-
-    #region Factory Method
     private static void Validate(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -41,16 +29,27 @@ public sealed class Sector : Entity, IAggregateRoots
 
         if (name.Trim().Length < 3)
             throw new Exception("Nome do setor muito curto.");
-    }
 
+        if (!NameRegex().IsMatch(name))
+            throw new Exception("Nome do setor contém caracteres inválidos.");
+    }
     public static Sector Create(string name)
     {
         Validate(name);
-
-        var id = Guid.NewGuid();
+        var id = Guid.CreateVersion7();
         var formattedName = Name.FormatName(name);
-
         return new Sector(id, formattedName);
     }
-    #endregion
+
+    public static string NormalizeSpaces(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return string.Empty;
+
+        return string.Join(' ', name
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    [GeneratedRegex(Pattern)]
+    private static partial Regex NameRegex();
 }

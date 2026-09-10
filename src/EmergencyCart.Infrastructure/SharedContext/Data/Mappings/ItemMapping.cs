@@ -8,14 +8,11 @@ public class ItemMapping : IEntityTypeConfiguration<Item>
 {
     public void Configure(EntityTypeBuilder<Item> builder)
     {
-        #region Table
         builder.ToTable("Item");
         builder.HasKey(item => item.Id)
             .HasName("PK_Item");
-        #endregion
-
-        #region Column
-        builder.Property(item => item.Name)
+    
+        builder.Property(item => item.Names)
             .HasColumnName("Name")
             .HasColumnType("VARCHAR")
             .HasMaxLength(60)
@@ -30,6 +27,5 @@ public class ItemMapping : IEntityTypeConfiguration<Item>
           .HasColumnName("Category")
           .HasColumnType("INT")
           .IsRequired(true);
-        #endregion
     }
 }

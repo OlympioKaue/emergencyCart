@@ -14,6 +14,12 @@ public class CarItemMapping : IEntityTypeConfiguration<CartItem>
             .HasName("PK_CartItem");
         #endregion
 
+        #region Index
+        builder.HasIndex(c => new {c.EmergencyCartId, c.ItemId })
+            .IsUnique()
+            .HasDatabaseName("IX_CartItem_EmergencyCartId_ItemId");
+        #endregion
+
         #region Column
         builder.Property(car => car.ExpectedQuantity)
             .HasColumnName("ExpectedQuantity")

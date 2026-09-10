@@ -1,8 +1,6 @@
 ﻿using EmergencyCart.Application.AccountContext.Repositories.Abstractions;
-using EmergencyCart.Application.AccountContext.Repositories.Abstractions.CodeGenerator;
 using EmergencyCart.Application.SharedContext.Repositories.Abstractions;
 using EmergencyCart.Infrastructure.AccountContext.Repositories.Abstractions;
-using EmergencyCart.Infrastructure.AccountContext.Repositories.Abstractions.CodeGenerator;
 using EmergencyCart.Infrastructure.SharedContext.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,8 +21,10 @@ public static class DepedencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ISectorRepository, SectorRepository>();
-        services.AddScoped<ICartCodeGenerator, CartCodeGenerator>();
         services.AddScoped<IEmergencyCartRepository, EmergencyCartRepository>();
+        services.AddScoped<IItemRepository, ItemRepository>();
+        services.AddScoped<ICartItemRepository, CartItemRepository>();
+
     }
 
     private static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
