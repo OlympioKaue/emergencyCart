@@ -1,8 +1,10 @@
 ﻿using EmergencyCart.Application.AccountContext.UseCases.CartItems.Update;
 using EmergencyCart.Application.AccountContext.UseCases.Items.Create;
+using EmergencyCart.Application.AccountContext.UseCases.Items.Get;
 using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmergencyCart.API.Controllers
@@ -11,10 +13,11 @@ namespace EmergencyCart.API.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Items.Create.Response), StatusCodes.Status201Created)]
-        [HttpPost]
         public async Task<IActionResult> Create(
             [FromServices] ISender sender,
             [FromBody] EmergencyCart.Application.AccountContext.UseCases.Items.Create.Command request)
@@ -29,6 +32,23 @@ namespace EmergencyCart.API.Controllers
                 };
             }
             return Created("", result.Value.message);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Get([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new Query());
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => Conflict(ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return Ok(result.Value);
         }
     }
 }

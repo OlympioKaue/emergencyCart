@@ -8,19 +8,14 @@ public class CarItemMapping : IEntityTypeConfiguration<CartItem>
 {
     public void Configure(EntityTypeBuilder<CartItem> builder)
     {
-        #region Table
         builder.ToTable("CartItem");
         builder.HasKey(cartItem => cartItem.Id)
             .HasName("PK_CartItem");
-        #endregion
 
-        #region Index
         builder.HasIndex(c => new {c.EmergencyCartId, c.ItemId })
             .IsUnique()
             .HasDatabaseName("IX_CartItem_EmergencyCartId_ItemId");
-        #endregion
 
-        #region Column
         builder.Property(car => car.ExpectedQuantity)
             .HasColumnName("ExpectedQuantity")
             .HasColumnType("INT")
@@ -35,6 +30,5 @@ public class CarItemMapping : IEntityTypeConfiguration<CartItem>
             .WithMany(car => car.CartItems)
             .HasForeignKey(car => car.ItemId)
             .OnDelete(DeleteBehavior.Restrict);
-        #endregion
     }
 }

@@ -12,11 +12,11 @@ public sealed class Handler
 {
     public async Task<Result<Response>> Handle(Command request, CancellationToken cancellationToken)
     {
-        var sector = await sectorRepository.GetByIdAsync(request.sectorId, cancellationToken);
+        var sector = await sectorRepository.GetByEmergencyCartAsync(request.sectorCode, cancellationToken);
         if (sector is null)
             return Result.Failure<Response>(Error.NotFound("404", "The specified sector was not found."));
 
-        var existingCart = await emergencyCartRepository.GetByIdAsync(request.sectorId, cancellationToken);
+        var existingCart = await emergencyCartRepository.GetBySectorAsync(sector.Id, cancellationToken);
         if (existingCart is not null)
             return Result.Failure<Response>(Error.Conflict("409", "An emergency cart already exists for the specified sector."));
 
@@ -26,6 +26,5 @@ public sealed class Handler
         await ofWork.CommitAsync(cancellationToken);
 
         return Result.Success(new Response("Emergency cart created successfully."));
-
     }
 }

@@ -2,6 +2,4 @@
 
 namespace EmergencyCart.Application.AccountContext.UseCases.CartItems.Create;
 
-public sealed record class Response(string message) : ICommandResponse
-{
-}
+public sealed record class Response(string message) : ICommandResponse;

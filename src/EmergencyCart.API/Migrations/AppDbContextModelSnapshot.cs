@@ -79,6 +79,32 @@ namespace EmergencyCart.API.Migrations
                     b.ToTable("EmergencyCart", (string)null);
                 });
 
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("BIT")
+                        .HasColumnName("IsActive");
+
+                    b.Property<int>("Roles")
+                        .HasColumnType("INT")
+                        .HasColumnName("Role");
+
+                    b.Property<string>("UserCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("VARCHAR")
+                        .HasColumnName("Code");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Employee");
+
+                    b.ToTable("Employee", (string)null);
+                });
+
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Item", b =>
                 {
                     b.Property<Guid>("Id")
@@ -111,6 +137,12 @@ namespace EmergencyCart.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("VARCHAR")
+                        .HasColumnName("Code");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("BIT")
                         .HasColumnName("IsActive");
@@ -125,32 +157,6 @@ namespace EmergencyCart.API.Migrations
                         .HasName("PK_Sector");
 
                     b.ToTable("Sector", (string)null);
-                });
-
-            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("BIT")
-                        .HasColumnName("IsActive");
-
-                    b.Property<int>("Roles")
-                        .HasColumnType("INT")
-                        .HasColumnName("Role");
-
-                    b.Property<string>("UserCode")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("VARCHAR")
-                        .HasColumnName("Code");
-
-                    b.HasKey("Id")
-                        .HasName("PK_User");
-
-                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.CartItem", b =>
@@ -183,11 +189,11 @@ namespace EmergencyCart.API.Migrations
                     b.Navigation("Sector");
                 });
 
-            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.User", b =>
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Employee", b =>
                 {
                     b.OwnsOne("EmergencyCart.Domain.AccountContext.ValueObjects.Email", "Email", b1 =>
                         {
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("EmployeeId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Address")
@@ -196,21 +202,21 @@ namespace EmergencyCart.API.Migrations
                                 .HasColumnType("VARCHAR")
                                 .HasColumnName("Email");
 
-                            b1.HasKey("UserId");
+                            b1.HasKey("EmployeeId");
 
                             b1.HasIndex("Address")
                                 .IsUnique()
-                                .HasDatabaseName("I_User_Email_Address");
+                                .HasDatabaseName("I_Employee_Email_Address");
 
-                            b1.ToTable("User");
+                            b1.ToTable("Employee");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("EmployeeId");
                         });
 
                     b.OwnsOne("EmergencyCart.Domain.AccountContext.ValueObjects.Name", "Name", b1 =>
                         {
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("EmployeeId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("FirstName")
@@ -225,17 +231,17 @@ namespace EmergencyCart.API.Migrations
                                 .HasColumnType("VARCHAR")
                                 .HasColumnName("LastName");
 
-                            b1.HasKey("UserId");
+                            b1.HasKey("EmployeeId");
 
-                            b1.ToTable("User");
+                            b1.ToTable("Employee");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("EmployeeId");
                         });
 
                     b.OwnsOne("EmergencyCart.Domain.AccountContext.ValueObjects.Password", "Password", b1 =>
                         {
-                            b1.Property<Guid>("UserId")
+                            b1.Property<Guid>("EmployeeId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Hash")
@@ -244,12 +250,12 @@ namespace EmergencyCart.API.Migrations
                                 .HasColumnType("VARCHAR")
                                 .HasColumnName("Hash");
 
-                            b1.HasKey("UserId");
+                            b1.HasKey("EmployeeId");
 
-                            b1.ToTable("User");
+                            b1.ToTable("Employee");
 
                             b1.WithOwner()
-                                .HasForeignKey("UserId");
+                                .HasForeignKey("EmployeeId");
                         });
 
                     b.Navigation("Email")

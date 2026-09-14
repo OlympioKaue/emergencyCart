@@ -175,4 +175,8 @@ C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\refint\Emergenc
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\EmergencyCart.API.pdb
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\EmergencyCart.API.genruntimeconfig.cache
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\ref\EmergencyCart.API.dll
+C:\Projetos\EmergencyCart\src\EmergencyCart.API\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Projetos\EmergencyCart\src\EmergencyCart.API\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
+C:\Projetos\EmergencyCart\src\EmergencyCart.API\bin\Debug\net9.0\Microsoft.Extensions.Configuration.dll
+C:\Projetos\EmergencyCart\src\EmergencyCart.API\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Binder.dll
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

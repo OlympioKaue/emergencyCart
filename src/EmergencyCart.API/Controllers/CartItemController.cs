@@ -1,6 +1,9 @@
-﻿using EmergencyCart.Application.SharedContext.Results;
+﻿using EmergencyCart.Application.AccountContext.UseCases.CartItems.GetAll;
+using EmergencyCart.Application.AccountContext.UseCases.CartItems.GetById;
+using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmergencyCart.API.Controllers
@@ -9,12 +12,12 @@ namespace EmergencyCart.API.Controllers
     [ApiController]
     public class CartItemController : ControllerBase
     {
-        //ok
+        [Authorize(Roles = "Pharmacist")]
+        [HttpPost("{emergencyCartId:guid}")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.CartItems.Create.Response), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
-        [HttpPost("{emergencyCartId:guid}")]
         public async Task<IActionResult> Create
             ([FromServices] ISender sender,
             [FromRoute] Guid emergencyCartId,
@@ -33,11 +36,12 @@ namespace EmergencyCart.API.Controllers
             return Created("", result.Value.message);
         }
 
-        //ok
+
+        [Authorize(Roles = "Pharmacist")]
+        [HttpPut("{cartItemId:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        [HttpPut("{cartItemId:guid}")]
         public async Task<IActionResult> Update
             ([FromServices] ISender sender,
             [FromRoute] Guid cartItemId,
@@ -53,6 +57,32 @@ namespace EmergencyCart.API.Controllers
                 };
             }
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.CartItems.GetAll.Query());
+            if (result.IsFailure)
+            {
+                return NotFound(ErrorResponse.From(result.Error));
+            }
+
+            return Ok(result.Value);
+        }
+
+        [Authorize]
+        [HttpGet("{emergencycartId:guid}")]
+        public async Task<IActionResult> GetById([FromServices] ISender sender, [FromRoute] Guid emergencycartId)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.CartItems.GetById.Query(emergencycartId));
+            if (result.IsFailure)
+            {
+                return NotFound(ErrorResponse.From(result.Error));
+            }
+
+            return Ok(result.Value);
         }
     }
 }

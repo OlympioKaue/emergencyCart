@@ -14,7 +14,6 @@ public sealed class Handler(
 {
     public async Task<Result<Response>> Handle(Command request, CancellationToken cancellationToken)
     {
-        //ok
         var validationResult = Validate(request);
         if (validationResult.IsFailure)
             return Result.Failure<Response>(validationResult.Error);

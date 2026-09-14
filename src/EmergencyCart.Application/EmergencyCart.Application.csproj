@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="AccountContext\UseCases\Sectors\Delete\" />
-    <Folder Include="AccountContext\UseCases\Sectors\Read\" />
     <Folder Include="AccountContext\UseCases\Sectors\Update\" />
   </ItemGroup>
 

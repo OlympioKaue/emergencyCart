@@ -2,6 +2,4 @@
 
 namespace EmergencyCart.Application.SharedContext.Repositories.Abstractions;
 
-public interface IRepository<TAggregate> where TAggregate : IAggregateRoots
-{
-}
+public interface IRepository<TAggregate> where TAggregate : IAggregateRoots;

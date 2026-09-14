@@ -1,6 +1,9 @@
-﻿using EmergencyCart.Application.SharedContext.Results;
+﻿using EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Create;
+using EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Get;
+using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmergencyCart.API.Controllers
@@ -9,19 +12,17 @@ namespace EmergencyCart.API.Controllers
     [ApiController]
     public class EmergencyCartController : ControllerBase
     {
-        //estou aqui
-        //ja vimos, sector, item, agora estamos aqui, falta (cartItem e user).
+        [Authorize(Roles = "Pharmacist")]
+        [HttpPost("{sectorCode}")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Create.Response), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
-        [HttpPost("{sectorId:guid}")]
         public async Task<IActionResult> Create
             ([FromServices] ISender sender,
-            [FromBody] EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Create.Command request,
-            [FromRoute] Guid sectorId)
+            [FromRoute] string sectorCode)
         {
-            var result = await sender.Send(request with { sectorId = sectorId });
+            var result = await sender.Send(new Command(sectorCode));
             if (result.IsFailure)
             {
                 return result.Error.type switch
@@ -33,6 +34,19 @@ namespace EmergencyCart.API.Controllers
             }
 
             return Created("", result.Value.message);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Get([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new Query());
+            if (result.IsFailure)
+            {
+               return NotFound(ErrorResponse.From(result.Error));
+
+            }
+            return Ok(result.Value);
         }
     }
 }

@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/EmergencyCart.API/Dockerfile
+    container_name: emergencycart-api
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=host.docker.internal,1433;Database=EmergencyCartDb;User Id=emergencycart_api;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+      ASPNETCORE_ENVIRONMENT: "Development"
+      Settings__Jwt__SigningKey: "${JWT_SIGNING_KEY}"
+      Settings__Jwt__ExpiresMinutes: "60"
+    ports:
+      - "7085:8080"

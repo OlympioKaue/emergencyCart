@@ -23,5 +23,8 @@ internal sealed class ItemRepository(AppDbContext dbContext) : IItemRepository
 
     public async Task<Item?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     => await dbContext.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id && i.IsActive, cancellationToken);
+
+    public async Task<List<Item>> GetAllAsync(CancellationToken cancellationToken)
+    => await dbContext.Items.AsNoTracking().ToListAsync(cancellationToken);
 }
 

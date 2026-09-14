@@ -8,20 +8,15 @@ public sealed partial record class Email : ValueObject
     public const string Pattern = @"^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
     public const int MinLength = 3;
 
-    #region Constructors
     private Email() { }
 
     private Email(string email)
     {
         Address = email;
     }
-    #endregion
 
-    #region Properties
     public string Address { get; } = string.Empty;
-    #endregion
 
-    #region Validation
     private static void Validate(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
@@ -33,9 +28,7 @@ public sealed partial record class Email : ValueObject
         if (email.Split('@')[0].Length < MinLength)
             throw new Exception();
     }
-    #endregion
 
-    #region Factory Method
     public static Email Create(string email)
     {
         Validate(email);
@@ -44,11 +37,9 @@ public sealed partial record class Email : ValueObject
 
        return new Email(formattedEmail);
     }
-    #endregion
 
-    #region Regex Method
+
     [GeneratedRegex(Pattern)]
     private static partial Regex EmailRegex();
-    #endregion
 
 }

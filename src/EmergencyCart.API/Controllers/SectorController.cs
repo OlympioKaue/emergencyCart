@@ -1,6 +1,8 @@
-﻿using EmergencyCart.Application.SharedContext.Results;
+﻿using EmergencyCart.Application.AccountContext.UseCases.Sectors.GetAll;
+using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmergencyCart.API.Controllers
@@ -9,6 +11,7 @@ namespace EmergencyCart.API.Controllers
     [ApiController]
     public class SectorController : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Sectors.Create.Response), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -31,5 +34,17 @@ namespace EmergencyCart.API.Controllers
             return Created("", $"{result.Value.Id} - {result.Value.message}");
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Get([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new Query());
+            if (result.IsFailure)
+            {
+                return NotFound(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
     }
 }

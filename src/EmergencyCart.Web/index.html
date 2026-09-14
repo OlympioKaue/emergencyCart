@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmergencyCart</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- LOGIN -->
+    <section id="login-screen" class="login-screen">
+        <div class="login-brand">
+            <div class="login-brand-top">
+                <div class="brand-mark">EC</div>
+                <div>
+                    <strong>EmergencyCart</strong>
+                    <span>Controle de carrinhos de emergência</span>
+                </div>
+            </div>
+
+            <ul class="brand-features">
+                <li>Setores e carrinhos organizados por unidade</li>
+                <li>Checklist de itens por carrinho, com quantidade esperada</li>
+                <li>Conferência de estoque em poucos toques</li>
+            </ul>
+
+            <p class="brand-quote">Cada carrinho pronto é um plantão mais seguro.</p>
+        </div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <span class="eyebrow">Acesso restrito</span>
+                <h1>Bem-vindo de volta</h1>
+                <p>Entre para acompanhar os carrinhos e conferências.</p>
+            </div>
+
+            <form id="login-form">
+                <label>E-mail</label>
+                <input id="login-email" type="email" placeholder="seu.email@hospital.com" required>
+
+                <label>Senha</label>
+                <input id="login-password" type="password" placeholder="••••••••" required>
+
+                <button class="btn btn-primary btn-full" type="submit">Entrar</button>
+            </form>
+
+            <small class="demo-note">Use o e-mail e senha cadastrados pelo administrador do sistema.</small>
+        </div>
+    </section>
+
+    <!-- APP -->
+    <div id="app" class="app hidden">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-mark">EC</div>
+                <div>
+                    <strong>EmergencyCart</strong>
+                    <span>Hospital</span>
+                </div>
+            </div>
+
+            <nav>
+                <button class="nav-item active" data-page="dashboard"><span>▦</span> Dashboard</button>
+                <button class="nav-item" data-page="sectors"><span>⌂</span> Setores</button>
+                 <button class="nav-item" data-page="items"><span>◈</span> Items</button>
+                <button class="nav-item" data-page="carts"><span>▣</span> Carrinhos</button>
+                <button class="nav-item" data-page="conference"><span>✓</span> Conferência</button>
+                <button class="nav-item" data-page="employees"><span>👤</span> Funcionários</button>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="user-mini">
+                    <div class="avatar">KO</div>
+                    <div>
+                        <strong id="user-name">Usuário</strong>
+                        <span id="user-role">Enfermeiro</span>
+                    </div>
+                </div>
+                <button id="logout" class="logout">Sair</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <h2 id="page-title">Dashboard</h2>
+                </div>
+                <div class="topbar-actions">
+                    <span class="status-dot"></span>
+                    Sistema operacional
+                    <div class="avatar">KO</div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD -->
+            <section id="page-dashboard" class="page active-page">
+                <div class="welcome">
+                    <div>
+                        <h1>Olá, profissional 👋</h1>
+                        <p>Acompanhe a situação dos carrinhos de emergência.</p>
+                    </div>
+                    <button class="btn btn-primary" data-page="conference">Nova conferência</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">▣</div>
+                        <span>Total de carrinhos</span>
+                        <strong>12</strong>
+                        <small>Em 6 setores</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">✓</div>
+                        <span>Conferidos hoje</span>
+                        <strong>8</strong>
+                        <small>66% concluído</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">!</div>
+                        <span>Itens pendentes</span>
+                        <strong>7</strong>
+                        <small>Precisam de reposição</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">⚠</div>
+                        <span>Conferências atrasadas</span>
+                        <strong>2</strong>
+                        <small>Verifique os setores</small>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div><h3>Status dos carrinhos</h3><p>Visão geral por situação</p></div>
+                            <button class="text-btn" data-page="carts">Ver todos</button>
+                        </div>
+                        <div class="progress-row">
+                            <div><span><i class="legend green"></i> Em conformidade</span><strong>8</strong></div>
+                            <div class="progress"><span style="width:67%"></span></div>
+                        </div>
+                        <div class="progress-row">
+                            <div><span><i class="legend orange"></i> Com pendências</span><strong>3</strong></div>
+                            <div class="progress orange-progress"><span style="width:25%"></span></div>
+                        </div>
+                        <div class="progress-row">
+                            <div><span><i class="legend red"></i> Atrasados</span><strong>1</strong></div>
+                            <div class="progress red-progress"><span style="width:8%"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div><h3>Últimas conferências</h3><p>Atividades recentes</p></div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-icon green">✓</div>
+                            <div><strong>UTI Adulto</strong><span>Conferência concluída, 10:42</span></div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-icon blue">✓</div>
+                            <div><strong>Pronto Atendimento</strong><span>Conferência concluída, 09:18</span></div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-icon orange">!</div>
+                            <div><strong>Centro Cirúrgico</strong><span>3 itens pendentes, ontem</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETORES -->
+            <section id="page-sectors" class="page">
+                <div class="section-heading">
+                    <div><h1>Setores</h1><p>Gerencie os setores vinculados aos carrinhos.</p></div>
+                    <button class="btn btn-primary" id="new-sector">+ Novo setor</button>
+                </div>
+                <div class="toolbar">
+                    <input id="sector-search" class="search" placeholder="Pesquisar setor...">
+                </div>
+                <div class="table-card">
+                    <table>
+                        <thead><tr><th>Setor</th><th>Carrinhos</th><th>Última conferência</th><th>Status</th><th></th></tr></thead>
+                        <tbody id="sector-table"></tbody>
+                    </table>
+                </div>
+            </section>
+
+             <!-- Items -->
+            <section id="page-items" class="page">
+                <div class="section-heading">
+                    <div><h1>Items</h1><p>Adicione items a unidade hospitalar.</p></div>
+                    <button class="btn btn-primary" id="new-items">+ Novo Item</button>
+                </div>
+                <div class="toolbar">
+                    <input id="items-search" class="search" placeholder="Pesquisar items...">
+                </div>
+                <div class="table-card">
+                    <table>
+                        <thead><tr><th>Item</th><th>Categoria</th><th></th></tr></thead>
+                        <tbody id="items-table"></tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- CARRINHOS -->
+            <section id="page-carts" class="page">
+                <div class="section-heading">
+                    <div><h1>Carrinhos de emergência</h1><p>Acompanhe estoque e situação de cada carrinho.</p></div>
+                    <button id="new-EmergencyCart" class="btn btn-primary">+ Novo carrinho</button>
+                </div>
+                <div class="cart-grid" id="cart-grid"></div>
+            </section>
+
+
+
+            <section id="page-cart-config" class="page">
+              <div class="section-heading">
+        <div>
+            <h1>Configurar carrinho</h1>
+            <p id="cart-config-description">
+                Configure os itens e as quantidades esperadas.
+            </p>
+        </div>
+
+        <button class="btn" onclick="showPage('carts')">
+            ← Voltar
+        </button>
+    </div>
+    <div class="panel">
+        <div class="panel-header">
+            <div>
+                <h3 id="config-cart-name">Carrinho</h3>
+                <p id="config-cart-sector">Setor</p>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div>
+                <label>Item</label>
+
+                <select id="cart-item-select">
+                    <option value="">Selecione um item</option>
+                </select>
+            </div>
+            <div>
+                <label>Quantidade esperada</label>
+                <input
+                    id="cart-item-quantity"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value="1"
+                >
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <button id="add-cart-item" class="btn btn-primary">
+                + Adicionar item
+            </button>
+        </div>
+    </div>
+    <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+            <div>
+                <h3>Itens configurados</h3>
+                <p>
+                    Itens que devem estar disponíveis neste carrinho.
+                </p>
+            </div>
+        </div>
+        <div id="cart-items-list"></div>
+             </div>
+                  </section>
+
+
+            <!-- CONFERÊNCIA -->
+            <section id="page-conference" class="page">
+                <div class="section-heading">
+                    <div><h1>Nova conferência</h1><p>Confira as quantidades disponíveis no carrinho.</p></div>
+                </div>
+
+                <div class="conference-layout">
+                    <div class="panel">
+                        <div class="form-grid">
+                            <div>
+                                <label>Setor</label>
+                                <select id="conference-sector">
+                                    <option>UTI Adulto</option>
+                                    <option>Pronto Atendimento</option>
+                                    <option>Centro Cirúrgico</option>
+                                    <option>Pediatria</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Carrinho</label>
+                                <select><option>Carrinho UTI-01</option><option>Carrinho PA-01</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div><h3>Itens do carrinho</h3><p>Informe a quantidade encontrada.</p></div>
+                            <span class="badge badge-blue">Conferência #0048</span>
+                        </div>
+                        <div class="checklist" id="checklist"></div>
+                        <div class="conference-footer">
+                            <div><strong id="pending-count">0 itens pendentes</strong><span>Confira antes de finalizar.</span></div>
+                            <button class="btn btn-primary" id="finish-conference">Finalizar conferência</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FUNCIONÁRIOS -->
+            <section id="page-employees" class="page">
+                <div class="section-heading">
+                    <div><h1>Funcionários</h1><p>Cadastre os funcionários que acessam o sistema.</p></div>
+                    <button class="btn btn-primary" id="new-employee">+ Novo funcionário</button>
+                </div>
+                <div class="table-card">
+                    <table>
+                        <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th></tr></thead>
+                        <tbody id="employees-table"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <dialog id="custom-modal" class="modern-modal">
+        <h3 id="modal-title">Título</h3>
+        <div id="modal-inputs" class="modal-body">
+            <!-- Inputs injetados via JS -->
+        </div>
+        <div class="modal-actions">
+            <button id="modal-cancel" type="button" class="btn">Cancelar</button>
+            <button id="modal-confirm" type="button" class="btn btn-primary">Confirmar</button>
+        </div>
+    </dialog>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

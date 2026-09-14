@@ -1,8 +1,5 @@
-﻿using EmergencyCart.Domain.AccountContext.Enums;
-using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
+﻿using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
 
@@ -37,10 +34,10 @@ public sealed class CartItem : Entity, IAggregateRoots
     public void IncreaseQuantity(int amount)
     {
         if (amount <= 0)
-            throw new InvalidOperationException("Amount must be positive.");
+            throw new Exception("Amount must be positive.");
 
         if (ExpectedQuantity + amount > MaxQuantity)
-            throw new InvalidOperationException($"Quantity limit exceeded. Max {MaxQuantity}, current {ExpectedQuantity}.");
+            throw new Exception($"Quantity limit exceeded. Max {MaxQuantity}, current {ExpectedQuantity}.");
 
         ExpectedQuantity += amount;
     }
@@ -48,9 +45,9 @@ public sealed class CartItem : Entity, IAggregateRoots
     private static void Validate(int amount)
     {
         if (amount <= 0)
-            throw new InvalidOperationException("Amount must be positive.");
+            throw new Exception("Amount must be positive.");
 
         if (amount > MaxQuantity)
-            throw new InvalidOperationException($"Quantity limit exceeded. Max {MaxQuantity}, current {amount}.");
+            throw new Exception($"Quantity limit exceeded. Max {MaxQuantity}, current {amount}.");
     }
 }

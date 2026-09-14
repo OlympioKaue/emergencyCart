@@ -7,6 +7,8 @@ public interface ICartItemRepository : IRepository<CartItem>
 {
     Task<CartItem?> GetCartItemAsync(Guid emergencyCartId, Guid itemId, CancellationToken cancellationToken);
     Task<CartItem?> GetCartItemByIdAsync(Guid cartItemId, CancellationToken cancellationToken);
+    Task<List<CartItem>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<CartItem>> GetCartItemsByCartIdAsync(Guid emergencyCart, CancellationToken cancellationToken);
     void Update(CartItem cartItem);
     Task AddAsync(CartItem cartItem, CancellationToken cancellationToken);
 }

@@ -1,3 +1,3 @@
 ﻿namespace EmergencyCart.Application.SharedContext.UseCases.Abstractions;
 
-public interface IQueryResponse { }
+public interface IQueryResponse;

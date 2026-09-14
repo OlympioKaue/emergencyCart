@@ -11,6 +11,12 @@ internal sealed class EmergencyCartRepository(AppDbContext dbContext) : IEmergen
         await dbContext.EmergencyCarts.AddAsync(emergencyCart, cancellationToken);
     }
 
-    public async Task<Domain.AccountContext.Entities.EmergencyCart?> GetByIdAsync(Guid sectorId, CancellationToken cancellationToken)
+    public async Task<List<Domain.AccountContext.Entities.EmergencyCart>> GetAll(CancellationToken cancellationToken)
+    => await dbContext.EmergencyCarts.Include(s => s.Sector).Include(x => x.CartItems).AsNoTracking().ToListAsync();
+
+    public async Task<Domain.AccountContext.Entities.EmergencyCart?> GetByIdAsync(Guid emergencyCart, CancellationToken cancellationToken)
+    => await dbContext.EmergencyCarts.AsNoTracking().FirstOrDefaultAsync(e => e.Id == emergencyCart);
+
+    public async Task<Domain.AccountContext.Entities.EmergencyCart?> GetBySectorAsync(Guid sectorId, CancellationToken cancellationToken)
     => await dbContext.EmergencyCarts.AsNoTracking().FirstOrDefaultAsync(e => e.SectorId == sectorId, cancellationToken);
 }

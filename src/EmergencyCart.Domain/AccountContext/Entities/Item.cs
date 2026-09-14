@@ -8,7 +8,7 @@ namespace EmergencyCart.Domain.AccountContext.Entities;
 
 public sealed partial class Item : Entity, IAggregateRoots
 {
-    public const string Pattern = @"^(?=.*\s)[\p{L}0-9\s%\(\)]+$";
+    public const string Pattern = @"^(?=.*\s)[\p{L}0-9\s%\(\)\/,]+$";
     private readonly List<CartItem> _cartItems;
 
     private Item() : base(Guid.CreateVersion7()) { }

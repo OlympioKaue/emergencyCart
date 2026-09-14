@@ -2,7 +2,5 @@
 
 namespace EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Create;
 
-public sealed record class Command(Guid sectorId) : ICommand<Response>
-{
-}
+public sealed record class Command(string sectorCode) : ICommand<Response>;
 

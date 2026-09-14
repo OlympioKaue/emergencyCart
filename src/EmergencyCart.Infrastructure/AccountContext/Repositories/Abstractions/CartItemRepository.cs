@@ -12,11 +12,18 @@ internal sealed class CartItemRepository(AppDbContext dbContext) : ICartItemRepo
         await dbContext.CartItems.AddAsync(cartItem, cancellationToken);
     }
 
+    public async Task<List<CartItem>> GetAllAsync(CancellationToken cancellationToken)
+     => await dbContext.CartItems.Include(i => i.Item).AsNoTracking().ToListAsync();
+
+
     public async Task<CartItem?> GetCartItemAsync(Guid emergencyCartId, Guid itemId, CancellationToken cancellationToken)
     => await dbContext.CartItems.FirstOrDefaultAsync(c => c.EmergencyCartId == emergencyCartId && c.ItemId == itemId, cancellationToken);
 
     public async Task<CartItem?> GetCartItemByIdAsync(Guid cartItemId, CancellationToken cancellationToken)
     => await dbContext.CartItems.FirstOrDefaultAsync(c => c.Id == cartItemId, cancellationToken);
+
+    public async Task<List<CartItem>> GetCartItemsByCartIdAsync(Guid emergencyCart, CancellationToken cancellationToken)
+    => await dbContext.CartItems.Include(i => i.Item).AsNoTracking().Where(i => i.EmergencyCartId == emergencyCart).ToListAsync(cancellationToken);
 
     public void Update(CartItem cartItem)
     {

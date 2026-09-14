@@ -12,8 +12,11 @@ internal class SectorRepository(AppDbContext dbContext) : ISectorRepository
        await dbContext.AddAsync(sector, cancellationToken);
     }
 
-    public async Task<Sector?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
-    => await dbContext.Sectors.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+    public async Task<List<Sector>> GetAllAsync(CancellationToken cancellationToken)
+    => await dbContext.Sectors.AsNoTracking().ToListAsync(cancellationToken);
+
+    public async Task<Sector?> GetByEmergencyCartAsync(string sectorCode, CancellationToken cancellationToken)
+    => await dbContext.Sectors.AsNoTracking().FirstOrDefaultAsync(s => s.Code == sectorCode);
 
     public async Task<bool> VerifyExistNameSector(string name, CancellationToken cancellationToken) 
         => await dbContext.Sectors

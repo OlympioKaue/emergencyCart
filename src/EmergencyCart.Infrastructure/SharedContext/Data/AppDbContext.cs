@@ -7,7 +7,7 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> dbContext) : base(dbContext) { }
 
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Employee> Employees { get; set; } = null!;
     public DbSet<Sector> Sectors { get; set; } = null!;
     public DbSet<Item> Items { get; set; } = null!;
     public DbSet<EmergencyCart.Domain.AccountContext.Entities.EmergencyCart> EmergencyCarts { get; set; } = null!;
