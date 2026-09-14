@@ -1,5 +1,6 @@
 ﻿using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
 
@@ -26,18 +27,16 @@ public sealed class CartItem : Entity, IAggregateRoots
     public static CartItem Create(Guid emergencyCartId, Guid itemId, int expectedQuantity)
     {
         Validate(expectedQuantity);
-
-        var id = Guid.CreateVersion7();
-        return new CartItem(id, emergencyCartId, itemId, expectedQuantity);
+        return new CartItem(Guid.CreateVersion7(), emergencyCartId, itemId, expectedQuantity);
     }
 
     public void IncreaseQuantity(int amount)
     {
         if (amount <= 0)
-            throw new Exception("Amount must be positive.");
+            throw new ValidationException("Unexpected error: The quantity does not meet system requirements.");
 
         if (ExpectedQuantity + amount > MaxQuantity)
-            throw new Exception($"Quantity limit exceeded. Max {MaxQuantity}, current {ExpectedQuantity}.");
+            throw new ValidationException($"Unexpected error: The quantity does not meet system requirements.");
 
         ExpectedQuantity += amount;
     }
@@ -45,9 +44,9 @@ public sealed class CartItem : Entity, IAggregateRoots
     private static void Validate(int amount)
     {
         if (amount <= 0)
-            throw new Exception("Amount must be positive.");
+            throw new ValidationException("Unexpected error: The quantity does not meet system requirements.");
 
         if (amount > MaxQuantity)
-            throw new Exception($"Quantity limit exceeded. Max {MaxQuantity}, current {amount}.");
+            throw new Exception($"Unexpected error: The quantity does not meet system requirements.");
     }
 }

@@ -61,19 +61,16 @@ namespace EmergencyCart.API.Controllers
 
         [Authorize]
         [HttpGet]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.CartItems.GetAll.Response), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromServices] ISender sender)
         {
             var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.CartItems.GetAll.Query());
-            if (result.IsFailure)
-            {
-                return NotFound(ErrorResponse.From(result.Error));
-            }
-
             return Ok(result.Value);
         }
 
         [Authorize]
         [HttpGet("{emergencycartId:guid}")]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromServices] ISender sender, [FromRoute] Guid emergencycartId)
         {
             var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.CartItems.GetById.Query(emergencycartId));

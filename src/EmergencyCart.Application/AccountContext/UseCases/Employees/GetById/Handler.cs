@@ -8,11 +8,11 @@ public sealed class Handler(IEmployeeRepository userRepository) : IQueryHandler<
 {
     public async Task<Result<Response>> Handle(Query request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserAsync(request.id, cancellationToken);
+        var employeeId = await userRepository.GetUserAsync(request.id, cancellationToken);
 
-        if (user is null)
-            return Result.Failure<Response>(Error.NotFound("404", "User not found"));
+        if (employeeId is null)
+            return Result.Failure<Response>(Error.NotFound("404", "Expected error: Employee not found"));
 
-        return Result.Success<Response>(new Response(user.Id, user.Name.FirstName, user.Name.LastName));
+        return Result.Success<Response>(new Response(employeeId.Id, employeeId.Name.FirstName, employeeId.Name.LastName));
     }
 }

@@ -17,7 +17,7 @@ public sealed class Handler(ISectorRepository sectorRepository, IUnitOfWork ofWo
 
         var alreadyExists = await sectorRepository.VerifyExistNameSector(request.name, cancellationToken);
         if (alreadyExists)
-            return Result.Failure<Response>(Error.Conflict("409", "A sector with the same name already exists."));
+            return Result.Failure<Response>(Error.Conflict("409", "Expected error: A sector with the same name already exists."));
 
         var sector = Sector.Create(request.name);
 

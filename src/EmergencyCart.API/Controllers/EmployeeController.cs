@@ -67,16 +67,9 @@ namespace EmergencyCart.API.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet()]
         [ProducesResponseType(typeof(Application.AccountContext.UseCases.Employees.GetAll.Response), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAll([FromServices] ISender sender)
         {
             var result = await sender.Send(new Query());
-
-            if (result.IsFailure)
-            {
-                return NotFound(ErrorResponse.From(result.Error));
-            }
-
             return Ok(result.Value);
         }
 
@@ -91,9 +84,7 @@ namespace EmergencyCart.API.Controllers
             var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Employees.GetById.Query(id));
 
             if (result.IsFailure)
-            {
                 return NotFound(ErrorResponse.From(result.Error));
-            }
 
             return Ok(result.Value);
         }

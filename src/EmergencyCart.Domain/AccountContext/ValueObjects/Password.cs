@@ -1,4 +1,5 @@
 ﻿using EmergencyCart.Domain.SharedContext.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.ValueObjects;
@@ -20,14 +21,11 @@ public sealed partial record class Password : ValueObject
 
     public static void Validate(string password)
     {
-        if (string.IsNullOrWhiteSpace(password))
-            throw new Exception();
-
-        if (password.Length < 6)
-            throw new Exception();
+        if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            throw new ValidationException("Unexpected error: The generated password does not meet the valid requirements.");
 
         if (!HashPasswordRegex().IsMatch(password))
-            throw new Exception();
+            throw new ValidationException("Unexpected error: The generated password does not meet the valid requirements.");
     }
 
 
@@ -40,13 +38,11 @@ public sealed partial record class Password : ValueObject
         return new Password(passwordHash);
     }
 
-
     private static string Encrypt(string password)
         => BCrypt.Net.BCrypt.HashPassword(password);
 
     public static bool Verify(string password, string hashPassword)
         => BCrypt.Net.BCrypt.Verify(password, hashPassword);
-
 
 
     [GeneratedRegex(Pattern)]

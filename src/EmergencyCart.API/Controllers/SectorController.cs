@@ -26,7 +26,6 @@ namespace EmergencyCart.API.Controllers
                 return result.Error.type switch
                 {
                     ErrorType.Conflict => Conflict(ErrorResponse.From(result.Error)),
-
                     _ => BadRequest(ErrorResponse.From(result.Error))
                 };
             }
@@ -36,14 +35,10 @@ namespace EmergencyCart.API.Controllers
 
         [Authorize]
         [HttpGet]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get([FromServices] ISender sender)
         {
             var result = await sender.Send(new Query());
-            if (result.IsFailure)
-            {
-                return NotFound(result.Error);
-            }
-
             return Ok(result.Value);
         }
     }

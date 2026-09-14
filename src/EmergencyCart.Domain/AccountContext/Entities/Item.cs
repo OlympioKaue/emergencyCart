@@ -2,6 +2,7 @@
 using EmergencyCart.Domain.AccountContext.ValueObjects;
 using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
@@ -29,26 +30,23 @@ public sealed partial class Item : Entity, IAggregateRoots
     private static void Validate(string name, ItemCategory category)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name cannot be null or empty.");
+            throw new ValidationException("Unexpected error: The item name does not meet system requirements.");
 
         if (name.Length < 5 || name.Length > 60)
-            throw new ArgumentException("Name must be between 5 and 60 characters long.");
+            throw new ValidationException("Unexpected error: The item name does not meet system requirements.");
 
         if (!NameRegex().IsMatch(name))
-            throw new ArgumentException("Name contains invalid characters.");
+            throw new ValidationException("Unexpected error: The item name does not meet system requirements.");
 
         if (!Enum.IsDefined(typeof(ItemCategory), category))
-            throw new ArgumentException("Invalid category.");
+            throw new ValidationException("Unexpected error: The item category type does not meet system requirements.");
     }
 
     public static Item Create(string name, ItemCategory category)
     {
         Validate(name, category);
-
         var formattedName = Name.FormatName(name);
-
-        var id = Guid.CreateVersion7();
-        return new Item(id, formattedName, category);
+        return new Item(Guid.CreateVersion7(), formattedName, category);
     }
 
     [GeneratedRegex(Pattern)]

@@ -1,3 +1,4 @@
+using EmergencyCart.API.Middlewares;
 using EmergencyCart.Application.SharedContext.DependencyInjections;
 using EmergencyCart.Infrastructure.SharedContext.DepedencyInjections;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,6 +44,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplicationSharedContext();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("Frontend");
 
 if (app.Environment.IsDevelopment())

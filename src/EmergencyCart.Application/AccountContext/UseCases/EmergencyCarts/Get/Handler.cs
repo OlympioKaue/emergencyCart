@@ -9,7 +9,6 @@ public sealed class Handler(IEmergencyCartRepository emergencyCartRepository) : 
     public async Task<Result<IReadOnlyList<Response>>> Handle(Query request, CancellationToken cancellationToken)
     {
         var cart = await emergencyCartRepository.GetAll(cancellationToken);
-
         var response = cart.Select(i => new Response(i.Id, i.Code, i.SectorId, i.Sector.Names, i.CartItems.Count)).ToList();
 
         return Result.Success<IReadOnlyList<Response>>(response);

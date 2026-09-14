@@ -1,6 +1,7 @@
 ﻿using EmergencyCart.Domain.AccountContext.ValueObjects;
 using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
@@ -26,14 +27,11 @@ public sealed partial class Sector : Entity, IAggregateRoots
 
     private static void Validate(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new Exception("Nome do setor não pode ser vazio.");
-
-        if (name.Trim().Length < 3)
-            throw new Exception("Nome do setor muito curto.");
+        if (string.IsNullOrWhiteSpace(name) || name.Trim().Length < 3)
+            throw new ValidationException("Unexpected error: The sector name does not meet system requirements.");
 
         if (!NameRegex().IsMatch(name))
-            throw new Exception("Nome do setor contém caracteres inválidos.");
+            throw new ValidationException("Unexpected error: The sector name does not meet system requirements.");
     }
     public static Sector Create(string name)
     {
@@ -41,6 +39,8 @@ public sealed partial class Sector : Entity, IAggregateRoots
         var id = Guid.CreateVersion7();
         var formattedName = Name.FormatName(name);
         var code = GenerateFrom(id);
+        if (string.IsNullOrEmpty(code))
+            throw new ValidationException("Unexpected error: The generated code does not meet the system requirements.");
         return new Sector(id, formattedName, code);
     }
 

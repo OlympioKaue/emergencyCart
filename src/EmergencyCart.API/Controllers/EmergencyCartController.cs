@@ -38,14 +38,10 @@ namespace EmergencyCart.API.Controllers
 
         [Authorize]
         [HttpGet]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.EmergencyCarts.Get.Response), StatusCodes.Status200OK)]
         public async Task<IActionResult> Get([FromServices] ISender sender)
         {
             var result = await sender.Send(new Query());
-            if (result.IsFailure)
-            {
-               return NotFound(ErrorResponse.From(result.Error));
-
-            }
             return Ok(result.Value);
         }
     }

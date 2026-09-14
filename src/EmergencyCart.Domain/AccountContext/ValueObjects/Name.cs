@@ -1,5 +1,6 @@
 ﻿using EmergencyCart.Domain.AccountContext.Enums;
 using EmergencyCart.Domain.SharedContext.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.ValueObjects;
@@ -26,10 +27,10 @@ public sealed partial record class Name : ValueObject
     private static void Validate(string firstName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-            throw new Exception();
+            throw new ValidationException("Unexpected error; First Name and Last Name cannot be empty or null.");
 
         if (!NameRegex().IsMatch(firstName) || !NameRegex().IsMatch(lastName))
-            throw new Exception();
+            throw new ValidationException("Unexpected error: the first and last names do not meet the standard character requirements.");
     }
 
     public static Name Create(string firstName, string lastName)
@@ -68,7 +69,7 @@ public sealed partial record class Name : ValueObject
         var parts = SplitNameIgnoringPrepositions(firstName, lastName);
 
         if (parts.Length == 0)
-            throw new Exception("trata aqui");
+            throw new ValidationException("Unexpected error: the generated code is invalid.");
 
         var namePart = parts.Length == 1
        ? parts[0].ToUpperInvariant()

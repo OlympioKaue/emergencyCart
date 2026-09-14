@@ -9,8 +9,6 @@ public sealed class Handler(IItemRepository itemRepository) : IQueryHandler<Quer
     public async Task<Result<IReadOnlyList<Response>>> Handle(Query request, CancellationToken cancellationToken)
     {
         var item = await itemRepository.GetAllAsync(cancellationToken);
-        if (item is null)
-            return Result.Failure<IReadOnlyList<Response>>(Error.NotFound("404", "Item not found"));
 
         var response = item.Select(i => new Response(i.Id, i.Names, i.Category)).ToList();
 

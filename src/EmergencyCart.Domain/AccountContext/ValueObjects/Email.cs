@@ -1,4 +1,5 @@
 ﻿using EmergencyCart.Domain.SharedContext.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace EmergencyCart.Domain.AccountContext.ValueObjects;
@@ -19,14 +20,11 @@ public sealed partial record class Email : ValueObject
 
     private static void Validate(string email)
     {
-        if (string.IsNullOrWhiteSpace(email))
-            throw new Exception();
-
-        if (!EmailRegex().IsMatch(email))
-            throw new Exception();
+        if (string.IsNullOrWhiteSpace(email) || !EmailRegex().IsMatch(email))
+            throw new ValidationException("Unexpected error: The generated email does not meet valid requirements.");
 
         if (email.Split('@')[0].Length < MinLength)
-            throw new Exception();
+            throw new ValidationException("Unexpected error: The generated email does not meet valid requirements.");
     }
 
     public static Email Create(string email)

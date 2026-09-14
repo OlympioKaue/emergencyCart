@@ -1,5 +1,6 @@
 ﻿using EmergencyCart.Application.AccountContext.Repositories.Abstractions;
 using EmergencyCart.Application.SharedContext.Results;
+using EmergencyCart.Application.SharedContext.Results.Enums;
 using EmergencyCart.Application.SharedContext.UseCases.Abstractions;
 
 namespace EmergencyCart.Application.AccountContext.UseCases.Sectors.GetAll;

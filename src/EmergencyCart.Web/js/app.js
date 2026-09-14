@@ -613,8 +613,12 @@ document.getElementById("new-EmergencyCart").addEventListener("click", async () 
         await createEmergencyCart(result.sectorCode);
 
         const updatedCarts = await getCarts();
+
         renderCarts(updatedCarts);
         renderDashboard(updatedCarts);
+
+        const updatedSectors = await getSectors();
+        renderSectors(updatedSectors, updatedCarts);
     }
 });
 

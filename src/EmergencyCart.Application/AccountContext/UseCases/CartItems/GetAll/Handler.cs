@@ -9,7 +9,6 @@ public sealed class Handler(ICartItemRepository cartItemRepository) : IQueryHand
     public async Task<Result<IReadOnlyList<Response>>> Handle(Query request, CancellationToken cancellationToken)
     {
         var cartItem = await cartItemRepository.GetAllAsync(cancellationToken);
-
         var response = cartItem.Select(i => new Response(i.Id, i.ItemId, i.Item.Names, i.Item.Category.ToString(), i.ExpectedQuantity)).ToList();
 
         return Result.Success<IReadOnlyList<Response>>(response);

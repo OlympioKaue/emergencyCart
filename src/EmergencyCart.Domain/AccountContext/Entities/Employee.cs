@@ -2,6 +2,7 @@
 using EmergencyCart.Domain.AccountContext.ValueObjects;
 using EmergencyCart.Domain.SharedContext.AggregateRoots.Abstractions;
 using EmergencyCart.Domain.SharedContext.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace EmergencyCart.Domain.AccountContext.Entities;
 
@@ -31,6 +32,8 @@ public sealed class Employee : Entity, IAggregateRoots
     public static Employee Create(Name name, Email email, Password password, EmployeeRole role)
     {
         var employeeCode = Name.CreateUseCode(name.FirstName, name.LastName, role);
+        if (employeeCode is null)
+            throw new ValidationException("Unexpected error: The generated code is invalid.");
         return new Employee(Guid.CreateVersion7(), name, email, password, role, employeeCode);
     }
 
