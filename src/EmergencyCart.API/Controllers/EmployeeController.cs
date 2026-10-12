@@ -1,13 +1,11 @@
-﻿using EmergencyCart.Application.AccountContext.UseCases.Employees.Create;
-using EmergencyCart.Application.AccountContext.UseCases.Employees.Delete;
-using EmergencyCart.Application.AccountContext.UseCases.Employees.GetAll;
-using EmergencyCart.Application.AccountContext.UseCases.Employees.Update;
+﻿using EmergencyCart.Application.AccountContext.UseCases.Employees.GetAll;
 using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace EmergencyCart.API.Controllers
 {
@@ -25,7 +23,6 @@ namespace EmergencyCart.API.Controllers
             [FromBody] Application.AccountContext.UseCases.Employees.Create.Command request)
         {
             var result = await sender.Send(request);
-
             if (result.IsFailure)
             {
                 return result.Error.type switch
@@ -65,7 +62,7 @@ namespace EmergencyCart.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet()]
+        [HttpGet("employees")]
         [ProducesResponseType(typeof(Application.AccountContext.UseCases.Employees.GetAll.Response), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromServices] ISender sender)
         {
@@ -108,7 +105,6 @@ namespace EmergencyCart.API.Controllers
                     _ => BadRequest(ErrorResponse.From(result.Error))
                 };
             }
-
             return NoContent();
         }
 

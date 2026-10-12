@@ -105,6 +105,70 @@ namespace EmergencyCart.API.Migrations
                     b.ToTable("Employee", (string)null);
                 });
 
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmergencyCartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("FinishedAt");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("StartedAt");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("Status");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Inspection");
+
+                    b.HasIndex("EmergencyCartId")
+                        .IsUnique()
+                        .HasFilter("[Status] = 1");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Inspection", (string)null);
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.InspectionItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ExpectedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FoundQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("InspectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("InspectionId", "ItemId")
+                        .IsUnique();
+
+                    b.ToTable("InspectionItem", (string)null);
+                });
+
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Item", b =>
                 {
                     b.Property<Guid>("Id")
@@ -221,7 +285,7 @@ namespace EmergencyCart.API.Migrations
 
                             b1.Property<string>("FirstName")
                                 .IsRequired()
-                                .HasMaxLength(20)
+                                .HasMaxLength(100)
                                 .HasColumnType("VARCHAR")
                                 .HasColumnName("FirstName");
 
@@ -268,9 +332,52 @@ namespace EmergencyCart.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>
+                {
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.EmergencyCart", "EmergencyCart")
+                        .WithMany()
+                        .HasForeignKey("EmergencyCartId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EmergencyCart");
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.InspectionItem", b =>
+                {
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.Inspection", "Inspection")
+                        .WithMany("InspectionItems")
+                        .HasForeignKey("InspectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Inspection");
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.EmergencyCart", b =>
                 {
                     b.Navigation("CartItems");
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>
+                {
+                    b.Navigation("InspectionItems");
                 });
 
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Item", b =>

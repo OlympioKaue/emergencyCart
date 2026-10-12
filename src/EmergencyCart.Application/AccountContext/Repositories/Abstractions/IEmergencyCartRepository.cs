@@ -7,5 +7,6 @@ public interface IEmergencyCartRepository : IRepository<EmergencyCart.Domain.Acc
     Task AddAsync(EmergencyCart.Domain.AccountContext.Entities.EmergencyCart emergencyCart, CancellationToken cancellationToken);
     Task<EmergencyCart.Domain.AccountContext.Entities.EmergencyCart?> GetBySectorAsync(Guid sectorId, CancellationToken cancellationToken);
     Task<EmergencyCart.Domain.AccountContext.Entities.EmergencyCart?> GetByIdAsync(Guid emergencyCart, CancellationToken cancellationToken);
+    Task<EmergencyCart.Domain.AccountContext.Entities.EmergencyCart?> GetByIdWithItemsAsync(Guid emergencyCartId, CancellationToken cancellationToken);
     Task<List<EmergencyCart.Domain.AccountContext.Entities.EmergencyCart>> GetAll(CancellationToken cancellationToken);
 }

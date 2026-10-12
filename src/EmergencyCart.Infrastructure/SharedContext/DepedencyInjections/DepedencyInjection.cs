@@ -27,6 +27,7 @@ public static class DepedencyInjection
         services.AddScoped<IEmergencyCartRepository, EmergencyCartRepository>();
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<ICartItemRepository, CartItemRepository>();
+        services.AddScoped<IInspectionRepository, InspectionRepository>();
 
     }
 
