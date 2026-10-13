@@ -129,5 +129,33 @@ namespace EmergencyCart.API.Controllers
 
             return Ok(result.Value);
         }
+
+        [Authorize(Roles = "Pharmacist,Nurse")]  
+        [HttpGet("in-progress/{emergencyCartId:guid}")]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetInProgress.Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetInProgress(
+        [FromServices] ISender sender,
+        [FromRoute] Guid emergencyCartId)
+        {
+            var employeeIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(employeeIdClaim, out var employeeId))
+                return Unauthorized();
+
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetInProgress.Query(emergencyCartId, employeeId));
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => NotFound(ErrorResponse.From(result.Error)),
+                    ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return Ok(result.Value);
+        }
     }
 }

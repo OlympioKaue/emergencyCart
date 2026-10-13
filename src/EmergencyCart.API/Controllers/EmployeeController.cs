@@ -5,7 +5,6 @@ using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace EmergencyCart.API.Controllers
 {
@@ -62,7 +61,7 @@ namespace EmergencyCart.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("employees")]
+        [HttpGet]
         [ProducesResponseType(typeof(Application.AccountContext.UseCases.Employees.GetAll.Response), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromServices] ISender sender)
         {

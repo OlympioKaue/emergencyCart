@@ -27,4 +27,11 @@ internal sealed class InspectionRepository(AppDbContext dbContext) : IInspection
     => await dbContext.Inspections
         .Include(i => i.InspectionItems)
         .FirstOrDefaultAsync(i => i.Id == inspectionId, cancellationToken);
+
+    public async Task<Inspection?> GetInProgressByEmergencyCartIdAsync(Guid emergencyCartId, CancellationToken cancellationToken)
+    => await dbContext.Inspections
+        .AsNoTracking()
+        .FirstOrDefaultAsync(
+            x => x.EmergencyCartId == emergencyCartId && x.Status == InspectionStatus.InProgress,
+            cancellationToken);
 }

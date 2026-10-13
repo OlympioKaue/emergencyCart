@@ -9,4 +9,6 @@ public interface IInspectionRepository : IRepository<Inspection>
     Task<bool> ExistsInProgressInspectionAsync(Guid emergencyCartId, CancellationToken cancellationToken);
     Task<Inspection?> GetByIdWithItemsAsync(Guid inspectionId, CancellationToken cancellationToken);
     Task<Inspection?> GetByIdWithItemDetailsAsync(Guid inspectionId, CancellationToken cancellationToken);
+    Task<Inspection?> GetInProgressByEmergencyCartIdAsync(Guid emergencyCartId, CancellationToken cancellationToken);
+
 }

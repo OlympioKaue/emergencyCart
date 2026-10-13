@@ -62,7 +62,7 @@
             <nav>
                 <button class="nav-item active" data-page="dashboard"><span>▦</span> Dashboard</button>
                 <button class="nav-item" data-page="sectors"><span>⌂</span> Setores</button>
-                 <button class="nav-item" data-page="items"><span>◈</span> Items</button>
+                <button class="nav-item" data-page="items"><span>◈</span> Items</button>
                 <button class="nav-item" data-page="carts"><span>▣</span> Carrinhos</button>
                 <button class="nav-item" data-page="conference"><span>✓</span> Conferência</button>
                 <button class="nav-item" data-page="employees"><span>👤</span> Funcionários</button>
@@ -186,7 +186,7 @@
                 </div>
             </section>
 
-             <!-- Items -->
+            <!-- Items -->
             <section id="page-items" class="page">
                 <div class="section-heading">
                     <div><h1>Items</h1><p>Adicione items a unidade hospitalar.</p></div>
@@ -203,7 +203,6 @@
                 </div>
             </section>
 
-
             <!-- CARRINHOS -->
             <section id="page-carts" class="page">
                 <div class="section-heading">
@@ -213,66 +212,64 @@
                 <div class="cart-grid" id="cart-grid"></div>
             </section>
 
-
-
+            <!-- CONFIGURAR CARRINHO -->
             <section id="page-cart-config" class="page">
-              <div class="section-heading">
-        <div>
-            <h1>Configurar carrinho</h1>
-            <p id="cart-config-description">
-                Configure os itens e as quantidades esperadas.
-            </p>
-        </div>
+                <div class="section-heading">
+                    <div>
+                        <h1>Configurar carrinho</h1>
+                        <p id="cart-config-description">
+                            Configure os itens e as quantidades esperadas.
+                        </p>
+                    </div>
 
-        <button class="btn" onclick="showPage('carts')">
-            ← Voltar
-        </button>
-    </div>
-    <div class="panel">
-        <div class="panel-header">
-            <div>
-                <h3 id="config-cart-name">Carrinho</h3>
-                <p id="config-cart-sector">Setor</p>
-            </div>
-        </div>
-        <div class="form-grid">
-            <div>
-                <label>Item</label>
+                    <button class="btn" onclick="showPage('carts')">
+                        ← Voltar
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 id="config-cart-name">Carrinho</h3>
+                            <p id="config-cart-sector">Setor</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div>
+                            <label>Item</label>
 
-                <select id="cart-item-select">
-                    <option value="">Selecione um item</option>
-                </select>
-            </div>
-            <div>
-                <label>Quantidade esperada</label>
-                <input
-                    id="cart-item-quantity"
-                    type="number"
-                    min="1"
-                    max="5"
-                    value="1"
-                >
-            </div>
-        </div>
-        <div style="margin-top: 20px;">
-            <button id="add-cart-item" class="btn btn-primary">
-                + Adicionar item
-            </button>
-        </div>
-    </div>
-    <div class="panel" style="margin-top: 20px;">
-        <div class="panel-header">
-            <div>
-                <h3>Itens configurados</h3>
-                <p>
-                    Itens que devem estar disponíveis neste carrinho.
-                </p>
-            </div>
-        </div>
-        <div id="cart-items-list"></div>
-             </div>
-                  </section>
-
+                            <select id="cart-item-select">
+                                <option value="">Selecione um item</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Quantidade esperada</label>
+                            <input
+                                id="cart-item-quantity"
+                                type="number"
+                                min="1"
+                                max="5"
+                                value="1"
+                            >
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button id="add-cart-item" class="btn btn-primary">
+                            + Adicionar item
+                        </button>
+                    </div>
+                </div>
+                <div class="panel" style="margin-top: 20px;">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Itens configurados</h3>
+                            <p>
+                                Itens que devem estar disponíveis neste carrinho.
+                            </p>
+                        </div>
+                    </div>
+                    <div id="cart-items-list"></div>
+                </div>
+            </section>
 
             <!-- CONFERÊNCIA -->
             <section id="page-conference" class="page">
@@ -284,30 +281,32 @@
                     <div class="panel">
                         <div class="form-grid">
                             <div>
-                                <label>Setor</label>
+                                <label for="conference-sector">Setor</label>
                                 <select id="conference-sector">
-                                    <option>UTI Adulto</option>
-                                    <option>Pronto Atendimento</option>
-                                    <option>Centro Cirúrgico</option>
-                                    <option>Pediatria</option>
+                                    <option value="">Carregando...</option>
                                 </select>
                             </div>
                             <div>
-                                <label>Carrinho</label>
-                                <select><option>Carrinho UTI-01</option><option>Carrinho PA-01</option></select>
+                                <label for="conference-cart">Carrinho</label>
+                                <select id="conference-cart">
+                                    <option value="">Selecione o setor</option>
+                                </select>
                             </div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button id="start-conference" class="btn btn-primary" type="button">Iniciar conferência</button>
                         </div>
                     </div>
 
-                    <div class="panel">
+                    <div id="conference-checklist-panel" class="panel hidden">
                         <div class="panel-header">
-                            <div><h3>Itens do carrinho</h3><p>Informe a quantidade encontrada.</p></div>
-                            <span class="badge badge-blue">Conferência #0048</span>
+                            <div><h3>Itens do carrinho</h3><p>Informe a quantidade encontrada e clique em Registrar.</p></div>
+                            <span id="conference-status-badge" class="badge badge-blue"></span>
                         </div>
                         <div class="checklist" id="checklist"></div>
                         <div class="conference-footer">
-                            <div><strong id="pending-count">0 itens pendentes</strong><span>Confira antes de finalizar.</span></div>
-                            <button class="btn btn-primary" id="finish-conference">Finalizar conferência</button>
+                            <div><strong id="pending-count">0 itens sem registro</strong><span>Registre todos os itens antes de finalizar.</span></div>
+                            <button class="btn btn-primary" id="finish-conference" type="button" disabled>Finalizar conferência</button>
                         </div>
                     </div>
                 </div>
@@ -330,7 +329,7 @@
         </main>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <dialog id="custom-modal" class="modern-modal">
         <h3 id="modal-title">Título</h3>
