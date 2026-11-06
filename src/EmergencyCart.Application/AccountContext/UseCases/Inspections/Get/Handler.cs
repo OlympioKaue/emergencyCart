@@ -26,7 +26,9 @@ public sealed class Handler(IInspectionRepository inspectionRepository) : IQuery
                 x.FoundQuantity,
                 x.Difference,
                 x.Comparison,
-                x.MissingQuantity))
+                x.MissingQuantity,
+                x.ReplenishedQuantity,
+                x.Note))
             .ToArray();
 
         return Result.Success(new Response(inspection.Id, inspection.Status, items));

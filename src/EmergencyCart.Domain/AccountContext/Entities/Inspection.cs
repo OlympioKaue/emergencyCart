@@ -68,6 +68,27 @@ public sealed partial class Inspection : Entity, IAggregateRoots
         inspectionItem.RegisterFoundQuantity(inspectionItem, foundQuantity);
     }
 
+    public void RegisterReplenishment(Guid itemId, Guid employeeId, int quantity)
+    {
+        if (Status != InspectionStatus.Completed)
+            throw new ValidationException("Unexpected error: Only completed inspections can have items replenished.");
+
+        var inspectionItem = _inspectionItems.FirstOrDefault(x => x.ItemId == itemId) ?? throw new ValidationException("Unexpected error: The inspection item does not exist.");
+        inspectionItem.RegisterReplenishment(employeeId, quantity);
+    }
+
+    public void RegisterNote(Guid itemId, string? note)
+    {
+        if (Status != InspectionStatus.Completed)
+            throw new ValidationException("Unexpected error: Only completed inspections can have notes.");
+
+        var inspectionItem = _inspectionItems.FirstOrDefault(x => x.ItemId == itemId);
+        if (inspectionItem is null)
+            throw new ValidationException("Unexpected error: The inspection item does not exist.");
+
+        inspectionItem.RegisterNote(note);
+    }
+
     public void Complete()
     {
         if (Status != InspectionStatus.InProgress)

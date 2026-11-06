@@ -173,10 +173,10 @@ C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets.development.json
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets.build.endpoints.json
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\swae.build.ex.cache
-C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\Emergenc.9E0E282D.Up2Date
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\EmergencyCart.API.dll
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\refint\EmergencyCart.API.dll
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\EmergencyCart.API.pdb
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\EmergencyCart.API.genruntimeconfig.cache
 C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\ref\EmergencyCart.API.dll
+C:\Projetos\EmergencyCart\src\EmergencyCart.API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -752,3 +752,46 @@ tbody tr:last-child td { border-bottom: none; }
     #checklist .checklist-item > :nth-child(3) { grid-column: 2; grid-row: 1; }
     #checklist .checklist-item > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* ============ SITUAÇÃO DO CARRINHO ============ */
+/* colunas alinhadas entre as linhas: item | encontrado | selo */
+#cart-status-list .checklist-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px 120px;
+    align-items: center;
+    gap: 12px;
+}
+#cart-status-list .found-quantity { font-size: 14px; text-align: right; }
+#cart-status-list .checklist-item .badge { justify-self: end; }
+
+@media (max-width: 600px) {
+    #cart-status-list .checklist-item { grid-template-columns: minmax(0, 1fr) auto; }
+    #cart-status-list .checklist-item > :nth-child(1) { grid-column: 1; grid-row: 1; }
+    #cart-status-list .checklist-item > :nth-child(3) { grid-column: 2; grid-row: 1; }
+    #cart-status-list .checklist-item > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; text-align: left; }
+}
+
+/* ============ PENDÊNCIAS ============ */
+#pendings-list { display: grid; gap: 16px; }
+#pendings-message, #pendings-summary { margin-bottom: 16px; font-size: 14px; }
+#pendings-summary { font-weight: 600; color: var(--ink); }
+/* colunas alinhadas entre as linhas: item | quantidade + Repor | selo */
+#pendings-list .checklist-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 100px;
+    align-items: center;
+    gap: 12px;
+}
+#pendings-list .checklist-item .badge { justify-self: end; }
+
+@media (max-width: 600px) {
+    #pendings-list .checklist-item { grid-template-columns: minmax(0, 1fr) auto; }
+    #pendings-list .checklist-item > :nth-child(1) { grid-column: 1; grid-row: 1; }
+    #pendings-list .checklist-item > :nth-child(3) { grid-column: 2; grid-row: 1; }
+    #pendings-list .checklist-item > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* ============ OBSERVAÇÃO DA FALTA ============ */
+.item-note { font-style: italic; }
+.note-btn { font-size: 12px; margin-top: 4px; }
+textarea.modal-input { resize: vertical; min-height: 84px; }

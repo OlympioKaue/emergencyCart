@@ -9,4 +9,6 @@ public sealed record ItemResponse(
     int? FoundQuantity,
     int? Difference,
     ComparisonStatus Comparison,
-    int MissingQuantity);
+    int MissingQuantity,
+    int ReplenishedQuantity,
+    string? Note);

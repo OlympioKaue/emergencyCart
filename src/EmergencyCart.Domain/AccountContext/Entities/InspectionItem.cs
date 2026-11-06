@@ -6,6 +6,9 @@ namespace EmergencyCart.Domain.AccountContext.Entities;
 
 public sealed class InspectionItem : Entity
 {
+    public const int MaxNoteLength = 200;
+
+    private readonly List<Replenishment> _replenishments = [];
     private InspectionItem() : base(Guid.CreateVersion7()) { }
 
     private InspectionItem(Guid id, Guid inspectionId, Guid itemId, int expectedQuantity) : base(id)
@@ -21,8 +24,12 @@ public sealed class InspectionItem : Entity
     public int MissingQuantity => Difference is < 0 ? -Difference.Value : 0;
     public Guid InspectionId { get; }
     public Guid ItemId { get; }
+    public string? Note { get; private set; } = string.Empty;
     public Inspection Inspection { get; } = null!;
     public Item Item { get; } = null!;
+    public IReadOnlyCollection<Replenishment> Replenishments => _replenishments.ToArray();
+    public int ReplenishedQuantity => _replenishments.Sum(x => x.Quantity);
+    public int PendingQuantity => Math.Max(MissingQuantity - ReplenishedQuantity, 0);
 
     internal static InspectionItem Create(Guid inspectionId, Guid itemId, int expectedQuantity)
     {
@@ -36,6 +43,29 @@ public sealed class InspectionItem : Entity
             throw new ValidationException("Unexpected error: The quantity does not meet system requirements.");
 
         FoundQuantity = foundQuantity;
+    }
+
+    internal void RegisterReplenishment(Guid employeeId, int quantity)
+    {
+        if (Comparison != ComparisonStatus.Missing)
+            throw new ValidationException("Unexpected error: Only missing items can be replenished.");
+
+        if (quantity <= 0 || quantity > PendingQuantity)
+            throw new ValidationException("Unexpected error: The quantity does not meet system requirements.");
+
+        _replenishments.Add(Replenishment.Create(Id, employeeId, quantity));
+    }
+
+    internal void RegisterNote(string? note)
+    {
+        if (Comparison != ComparisonStatus.Missing)
+            throw new ValidationException("Unexpected error: Only missing items can have a note.");
+
+        var text = note?.Trim();
+        if (text is { Length: > MaxNoteLength })
+            throw new ValidationException("Unexpected error: The note exceeds the maximum length.");
+
+        Note = string.IsNullOrEmpty(text) ? null : text;
     }
 
     public ComparisonStatus Comparison => Difference switch

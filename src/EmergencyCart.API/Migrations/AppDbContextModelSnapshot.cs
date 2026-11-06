@@ -159,6 +159,10 @@ namespace EmergencyCart.API.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("NVARCHAR");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
@@ -193,6 +197,32 @@ namespace EmergencyCart.API.Migrations
                         .HasName("PK_Item");
 
                     b.ToTable("Item", (string)null);
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Replenishment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InspectionItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReplenishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("InspectionItemId");
+
+                    b.ToTable("Replenishment", (string)null);
                 });
 
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Sector", b =>
@@ -370,6 +400,25 @@ namespace EmergencyCart.API.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Replenishment", b =>
+                {
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.InspectionItem", "InspectionItem")
+                        .WithMany("Replenishments")
+                        .HasForeignKey("InspectionItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("InspectionItem");
+                });
+
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.EmergencyCart", b =>
                 {
                     b.Navigation("CartItems");
@@ -378,6 +427,11 @@ namespace EmergencyCart.API.Migrations
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>
                 {
                     b.Navigation("InspectionItems");
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.InspectionItem", b =>
+                {
+                    b.Navigation("Replenishments");
                 });
 
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Item", b =>

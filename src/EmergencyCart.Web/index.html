@@ -65,6 +65,7 @@
                 <button class="nav-item" data-page="items"><span>◈</span> Items</button>
                 <button class="nav-item" data-page="carts"><span>▣</span> Carrinhos</button>
                 <button class="nav-item" data-page="conference"><span>✓</span> Conferência</button>
+                <button class="nav-item" data-page="pendings"><span>!</span> Pendências</button>
                 <button class="nav-item" data-page="employees"><span>👤</span> Funcionários</button>
             </nav>
 
@@ -271,6 +272,31 @@
                 </div>
             </section>
 
+            <!-- SITUAÇÃO DO CARRINHO -->
+            <section id="page-cart-status" class="page">
+                <div class="section-heading">
+                    <div>
+                        <h1>Situação do carrinho</h1>
+                        <p>Resultado da última conferência finalizada.</p>
+                    </div>
+                    <button id="cart-status-back" class="btn" type="button">← Voltar</button>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 id="cart-status-title">Carrinho</h3>
+                            <p id="cart-status-subtitle"></p>
+                        </div>
+                        <span id="cart-status-badge" class="badge badge-blue hidden"></span>
+                    </div>
+                    <p id="cart-status-message" class="hidden" role="status"></p>
+                    <div id="cart-status-list"></div>
+                    <div id="cart-status-footer" class="conference-footer hidden">
+                        <strong id="cart-status-summary"></strong>
+                    </div>
+                </div>
+            </section>
+
             <!-- CONFERÊNCIA -->
             <section id="page-conference" class="page">
                 <div class="section-heading">
@@ -310,6 +336,20 @@
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- PENDÊNCIAS -->
+            <section id="page-pendings" class="page">
+                <div class="section-heading">
+                    <div>
+                        <h1>Pendências</h1>
+                        <p>Itens em falta na última conferência finalizada de cada carrinho.</p>
+                    </div>
+                    <button id="refresh-pendings" class="btn" type="button">Atualizar</button>
+                </div>
+                <p id="pendings-message" class="hidden" role="status"></p>
+                <p id="pendings-summary" class="hidden"></p>
+                <div id="pendings-list"></div>
             </section>
 
             <!-- FUNCIONÁRIOS -->

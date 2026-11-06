@@ -1,4 +1,6 @@
-﻿using EmergencyCart.Application.SharedContext.Results;
+﻿using EmergencyCart.Application.AccountContext.UseCases.Inspections.Create.CreateNote;
+using EmergencyCart.Application.AccountContext.UseCases.Replenishment.Create;
+using EmergencyCart.Application.SharedContext.Results;
 using EmergencyCart.Application.SharedContext.Results.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +42,41 @@ namespace EmergencyCart.API.Controllers
         }
 
         [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpPost("{inspectionId:guid}/items/{itemId:guid}/replenishments")]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Replenishment.Create.Response), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> RegisterReplenishment(
+        [FromServices] ISender sender,
+        [FromRoute] Guid inspectionId,
+        [FromRoute] Guid itemId,
+        [FromBody] ReplenishmentRequest request)
+        {
+            var employeeIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(employeeIdClaim, out var employeeId))
+                return Unauthorized();
+
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Replenishment.Create.Command(
+                inspectionId, itemId, employeeId, request.Quantity));
+
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => NotFound(ErrorResponse.From(result.Error)),
+                    ErrorType.Conflict => Conflict(ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
         [HttpPatch("{inspectionId:guid}/items/{itemId:guid}")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.RegisterItem.Response), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -73,7 +110,7 @@ namespace EmergencyCart.API.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "Pharmacist,Nurse")] 
+        [Authorize(Roles = "Pharmacist,Nurse")]
         [HttpPatch("{inspectionId:guid}/complete")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Complete.Response), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -105,7 +142,38 @@ namespace EmergencyCart.API.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "Pharmacist,Nurse")]  
+        [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpPut("{inspectionId:guid}/items/{itemId:guid}/note")]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Create.CreateNote.Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> RegisterNote(
+        [FromServices] ISender sender,
+        [FromRoute] Guid inspectionId,
+        [FromRoute] Guid itemId,
+        [FromBody] CommandNote request)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.Create.CreateNote.Command(
+                inspectionId, itemId, request.Note));
+
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => NotFound(ErrorResponse.From(result.Error)),
+                    ErrorType.Conflict => Conflict(ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return Ok(result.Value);
+        }
+
+
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
         [HttpGet("{inspectionId:guid}/comparison")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.Response), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -130,7 +198,7 @@ namespace EmergencyCart.API.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "Pharmacist,Nurse")]  
+        [Authorize(Roles = "Pharmacist,Nurse")]
         [HttpGet("in-progress/{emergencyCartId:guid}")]
         [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetInProgress.Response), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -155,6 +223,41 @@ namespace EmergencyCart.API.Controllers
                 };
             }
 
+            return Ok(result.Value);
+        }
+
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpGet("last/{emergencyCartId:guid}")]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetLastCompleted.Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetLastCompleted(
+        [FromServices] ISender sender,
+        [FromRoute] Guid emergencyCartId)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetLastCompleted.Query(emergencyCartId));
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => NotFound(ErrorResponse.From(result.Error)),
+                    ErrorType.Unauthorized => Unauthorized(ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return Ok(result.Value);
+        }
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpGet("pending")]
+        [ProducesResponseType(typeof(IReadOnlyList<EmergencyCart.Application.AccountContext.UseCases.Inspections.GetPending.Response>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetPending([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.GetPending.Query());
             return Ok(result.Value);
         }
     }

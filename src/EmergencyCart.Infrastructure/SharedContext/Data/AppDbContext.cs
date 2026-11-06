@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<CartItem> CartItems { get; set; } = null!;
     public DbSet<Inspection> Inspections { get; set; } = null!;
     public DbSet<InspectionItem> InspectionItems { get; set; } = null!;
+    public DbSet<Replenishment> Replenishments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
