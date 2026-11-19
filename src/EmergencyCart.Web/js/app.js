@@ -128,7 +128,7 @@ function renderDashboard(carts, inspections = currentInspectionHistory, pendings
     const compliant = carts.filter(cart => lastByCart.has(cart.id) && !pendingCartIds.has(cart.id)).length;
     const withPendings = carts.filter(cart => pendingCartIds.has(cart.id)).length;
     const neverInspected = carts.filter(cart => !lastByCart.has(cart.id)).length;
-    const pendingItems = pendings.reduce((sum, pending) => sum + pending.items.length, 0);
+    const pendingItems = pendings.reduce((sum, pending) => sum + pending.items.reduce((itemSum, item) => itemSum + item.pendingQuantity, 0), 0);
     const noInspectionToday = carts.filter(cart => !checkedToday.has(cart.id)).length;
     const completionRate = carts.length ? Math.round(checkedToday.size / carts.length * 100) : 0;
     const sectors = new Set(carts.map(cart => cart.sectorId)).size;
