@@ -252,6 +252,16 @@ namespace EmergencyCart.API.Controllers
         }
 
         [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpGet("history")]
+        [ProducesResponseType(typeof(IReadOnlyList<EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetHistory.Response>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetHistory([FromServices] ISender sender)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetHistory.Query());
+            return Ok(result.Value);
+        }
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
         [HttpGet("pending")]
         [ProducesResponseType(typeof(IReadOnlyList<EmergencyCart.Application.AccountContext.UseCases.Inspections.GetPending.Response>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
