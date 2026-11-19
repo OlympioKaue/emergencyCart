@@ -4,6 +4,7 @@ namespace EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetH
 
 public sealed record class Response(
     Guid InspectionId,
+    Guid EmergencyCartId,
     string CartCode,
     string SectorName,
     string EmployeeName,
