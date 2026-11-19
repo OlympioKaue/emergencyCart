@@ -65,6 +65,7 @@
                 <button class="nav-item" data-page="items"><span>◈</span> Items</button>
                 <button class="nav-item" data-page="carts"><span>▣</span> Carrinhos</button>
                 <button class="nav-item" data-page="conference"><span>✓</span> Conferência</button>
+                <button class="nav-item" data-page="history"><span>◷</span> Histórico</button>
                 <button class="nav-item" data-page="pendings"><span>!</span> Pendências</button>
                 <button class="nav-item" data-page="employees"><span>👤</span> Funcionários</button>
             </nav>
@@ -95,79 +96,28 @@
 
             <!-- DASHBOARD -->
             <section id="page-dashboard" class="page active-page">
-                <div class="welcome">
-                    <div>
-                        <h1>Olá, profissional 👋</h1>
-                        <p>Acompanhe a situação dos carrinhos de emergência.</p>
-                    </div>
-                    <button class="btn btn-primary" data-page="conference">Nova conferência</button>
-                </div>
-
+                <div class="welcome"><div><h1>Olá, profissional 👋</h1><p>Acompanhe a situação dos carrinhos de emergência.</p></div><button class="btn btn-primary" data-page="conference">Nova conferência</button></div>
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">▣</div>
-                        <span>Total de carrinhos</span>
-                        <strong>12</strong>
-                        <small>Em 6 setores</small>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">✓</div>
-                        <span>Conferidos hoje</span>
-                        <strong>8</strong>
-                        <small>66% concluído</small>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">!</div>
-                        <span>Itens pendentes</span>
-                        <strong>7</strong>
-                        <small>Precisam de reposição</small>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon red">⚠</div>
-                        <span>Conferências atrasadas</span>
-                        <strong>2</strong>
-                        <small>Verifique os setores</small>
-                    </div>
+                    <div class="stat-card"><div class="stat-icon blue">▣</div><span>Total de carrinhos</span><strong id="dashboard-total-carts">—</strong><small id="dashboard-total-carts-detail">Carregando...</small></div>
+                    <div class="stat-card"><div class="stat-icon green">✓</div><span>Conferências hoje</span><strong id="dashboard-inspections-today">—</strong><small id="dashboard-inspections-today-detail">Carregando...</small></div>
+                    <div class="stat-card"><div class="stat-icon orange">!</div><span>Itens com pendência</span><strong id="dashboard-pending-items">—</strong><small id="dashboard-pending-items-detail">Carregando...</small></div>
+                    <div class="stat-card"><div class="stat-icon red">⚠</div><span>Carrinhos sem conferência hoje</span><strong id="dashboard-no-inspection-today">—</strong><small id="dashboard-no-inspection-today-detail">Carregando...</small></div>
                 </div>
-
                 <div class="content-grid">
                     <div class="panel">
-                        <div class="panel-header">
-                            <div><h3>Status dos carrinhos</h3><p>Visão geral por situação</p></div>
-                            <button class="text-btn" data-page="carts">Ver todos</button>
-                        </div>
-                        <div class="progress-row">
-                            <div><span><i class="legend green"></i> Em conformidade</span><strong>8</strong></div>
-                            <div class="progress"><span style="width:67%"></span></div>
-                        </div>
-                        <div class="progress-row">
-                            <div><span><i class="legend orange"></i> Com pendências</span><strong>3</strong></div>
-                            <div class="progress orange-progress"><span style="width:25%"></span></div>
-                        </div>
-                        <div class="progress-row">
-                            <div><span><i class="legend red"></i> Atrasados</span><strong>1</strong></div>
-                            <div class="progress red-progress"><span style="width:8%"></span></div>
-                        </div>
+                        <div class="panel-header"><div><h3>Status dos carrinhos</h3><p>Situação baseada na última conferência finalizada</p></div><button class="text-btn" data-page="carts">Ver todos</button></div>
+                        <div class="progress-row"><div><span><i class="legend green"></i> Em conformidade</span><strong id="dashboard-compliant-count">0</strong></div><div class="progress"><span id="dashboard-compliant-bar" style="width:0%"></span></div></div>
+                        <div class="progress-row"><div><span><i class="legend orange"></i> Com pendências</span><strong id="dashboard-pending-count">0</strong></div><div class="progress orange-progress"><span id="dashboard-pending-bar" style="width:0%"></span></div></div>
+                        <div class="progress-row"><div><span><i class="legend red"></i> Sem conferência finalizada</span><strong id="dashboard-never-inspected-count">0</strong></div><div class="progress red-progress"><span id="dashboard-never-inspected-bar" style="width:0%"></span></div></div>
                     </div>
-
-                    <div class="panel">
-                        <div class="panel-header">
-                            <div><h3>Últimas conferências</h3><p>Atividades recentes</p></div>
-                        </div>
-                        <div class="activity">
-                            <div class="activity-icon green">✓</div>
-                            <div><strong>UTI Adulto</strong><span>Conferência concluída, 10:42</span></div>
-                        </div>
-                        <div class="activity">
-                            <div class="activity-icon blue">✓</div>
-                            <div><strong>Pronto Atendimento</strong><span>Conferência concluída, 09:18</span></div>
-                        </div>
-                        <div class="activity">
-                            <div class="activity-icon orange">!</div>
-                            <div><strong>Centro Cirúrgico</strong><span>3 itens pendentes, ontem</span></div>
-                        </div>
-                    </div>
+                    <div class="panel"><div class="panel-header"><div><h3>Últimas conferências</h3><p>Registros reais do sistema</p></div><button class="text-btn" data-page="history">Ver histórico</button></div><div id="dashboard-recent-activity" aria-live="polite"><p class="empty-state">Carregando conferências...</p></div></div>
                 </div>
+            </section>
+
+            <!-- HISTÓRICO -->
+            <section id="page-history" class="page">
+                <div class="section-heading"><div><h1>Histórico de conferências</h1><p>Últimas 100 conferências, com itens conferidos e reposições registradas.</p></div><button class="btn" id="refresh-history" type="button">Atualizar</button></div>
+                <div class="table-card history-table-card"><table><thead><tr><th>Início</th><th>Carrinho</th><th>Setor</th><th>Responsável</th><th>Status</th><th>Detalhes</th></tr></thead><tbody id="history-table"><tr><td colspan="6">Selecione Histórico para carregar os registros.</td></tr></tbody></table></div>
             </section>
 
             <!-- SETORES -->
