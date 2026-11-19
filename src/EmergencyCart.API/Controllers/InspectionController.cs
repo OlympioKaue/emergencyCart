@@ -251,7 +251,7 @@ namespace EmergencyCart.API.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "Pharmacist,Nurse")]
+        [Authorize(Roles = "Admin,Pharmacist,Nurse")]
         [HttpGet("history")]
         [ProducesResponseType(typeof(IReadOnlyList<EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetHistory.Response>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -261,7 +261,7 @@ namespace EmergencyCart.API.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "Pharmacist,Nurse")]
+        [Authorize(Roles = "Admin,Pharmacist,Nurse")]
         [HttpGet("pending")]
         [ProducesResponseType(typeof(IReadOnlyList<EmergencyCart.Application.AccountContext.UseCases.Inspections.GetPending.Response>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
