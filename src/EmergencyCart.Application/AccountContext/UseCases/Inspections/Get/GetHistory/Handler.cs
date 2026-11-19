@@ -15,6 +15,7 @@ public sealed class Handler(IInspectionRepository inspectionRepository)
 
         var response = inspections.Select(inspection => new Response(
             inspection.Id,
+            inspection.EmergencyCartId,
             inspection.EmergencyCart.Code,
             inspection.EmergencyCart.Sector.Names,
             $"{inspection.Employee.Name.FirstName} {inspection.Employee.Name.LastName}".Trim(),
