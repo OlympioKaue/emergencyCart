@@ -67,4 +67,19 @@ internal sealed class InspectionRepository(AppDbContext dbContext) : IInspection
                  .ThenInclude(x => x.Item)
              .ToListAsync(cancellationToken);
 
+    public Task<List<Inspection>> GetHistoryAsync(CancellationToken cancellationToken)
+    => dbContext.Inspections
+        .AsNoTracking()
+        .Include(x => x.EmergencyCart)
+            .ThenInclude(x => x.Sector)
+        .Include(x => x.Employee)
+        .Include(x => x.InspectionItems)
+            .ThenInclude(x => x.Item)
+        .Include(x => x.InspectionItems)
+            .ThenInclude(x => x.Replenishments)
+                .ThenInclude(x => x.Employee)
+        .OrderByDescending(x => x.StartedAt)
+        .Take(100)
+        .ToListAsync(cancellationToken);
+
 }
