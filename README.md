@@ -307,7 +307,7 @@ Senha: Admin123!
 - [x] **AC1** - Setores, itens, carrinhos, configuração de itens esperados, autenticação e permissões
 - [x] **AC2** - Conferência do carrinho (iniciar, registrar a quantidade encontrada, comparar esperado × encontrado, identificar faltantes, finalizar e retomar uma conferência em andamento)
 - [x] **AC3** - Tela de pendências e reposição de itens, mais a situação do carrinho e a observação da falta
-- [ ] **AC4** - Histórico de uso e indicadores
+- [x] **AC4** - Histórico de uso e indicadores
 
 > O Dashboard ainda exibe números de exemplo (exceto o total de carrinhos e de setores). Os indicadores reais entram na AC4.
 
