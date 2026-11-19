@@ -795,3 +795,15 @@ tbody tr:last-child td { border-bottom: none; }
 .item-note { font-style: italic; }
 .note-btn { font-size: 12px; margin-top: 4px; }
 textarea.modal-input { resize: vertical; min-height: 84px; }
+
+/* ============ AC4: HISTÓRICO E INDICADORES ============ */
+.empty-state { color: var(--ink-soft); font-size: 14px; padding: 12px 0; }
+.history-table-card { overflow-x: auto; }
+.history-table-card table { min-width: 850px; }
+.history-details summary { color: var(--scrub); cursor: pointer; font-weight: 600; white-space: nowrap; }
+.history-items { margin-top: 10px; min-width: 620px; box-shadow: none; }
+.history-items table { min-width: 620px; }
+.history-items th, .history-items td { padding: 8px 10px; font-size: 12px; }
+.history-replenishment { color: var(--ink-soft); font-size: 12px; padding: 3px 0; }
+#dashboard-recent-activity .activity > div:last-child { min-width: 0; }
+#dashboard-recent-activity .activity span { line-height: 1.5; }
