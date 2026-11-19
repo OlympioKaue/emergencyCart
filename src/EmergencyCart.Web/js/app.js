@@ -12,6 +12,8 @@ let cartStatusRequestId = 0;
 let cartStatusReturnPage = "carts";
 let pendingsRequestId = 0;
 let currentPendings = [];
+let currentInspectionHistory = [];
+let currentDashboardPendings = [];
 
 class SessionExpiredError extends Error {}
 
@@ -68,12 +70,14 @@ function showPage(page) {
         "cart-status": "Situação do carrinho",
         conference: "Conferência",
         pendings: "Pendências",
+        history: "Histórico",
         employees: "Funcionários"
     };
     document.getElementById("page-title").textContent = titles[page];
 
     if (page === "conference") loadConferencePage();
     if (page === "pendings") loadPendings();
+    if (page === "history") loadHistory();
 }
 
 // ============ PERMISSÕES POR PERFIL (front-end só esconde botão; quem protege de verdade é o [Authorize] do backend) ============
@@ -107,11 +111,152 @@ const roleLabels = {
     Nurse: "Enfermeiro"
 };
 
-function renderDashboard(carts) {
-    document.querySelector("#page-dashboard .stat-card:nth-child(1) strong").textContent = carts.length;
+function renderDashboard(carts, inspections = currentInspectionHistory, pendings = currentDashboardPendings) {
+    const today = new Date().toDateString();
+    const completed = inspections.filter(x => x.status === "Completed" && x.finishedAt);
+    const completedToday = completed.filter(x => new Date(x.finishedAt).toDateString() === today);
+    const checkedToday = new Set(completedToday.map(x => x.emergencyCartId).filter(Boolean));
+    const pendingCartIds = new Set(pendings.map(x => x.emergencyCartId));
+    const lastByCart = new Map();
 
-    const uniqueSectors = new Set(carts.map(c => c.sectorId)).size;
-    document.querySelector("#page-dashboard .stat-card:nth-child(1) small").textContent = `Em ${uniqueSectors} setores`;
+    completed.forEach(inspection => {
+        const previous = lastByCart.get(inspection.emergencyCartId);
+        if (!previous || new Date(inspection.finishedAt) > new Date(previous.finishedAt))
+            lastByCart.set(inspection.emergencyCartId, inspection);
+    });
+
+    const compliant = carts.filter(cart => lastByCart.has(cart.id) && !pendingCartIds.has(cart.id)).length;
+    const withPendings = carts.filter(cart => pendingCartIds.has(cart.id)).length;
+    const neverInspected = carts.filter(cart => !lastByCart.has(cart.id)).length;
+    const pendingItems = pendings.reduce((sum, pending) => sum + pending.items.length, 0);
+    const noInspectionToday = carts.filter(cart => !checkedToday.has(cart.id)).length;
+    const completionRate = carts.length ? Math.round(checkedToday.size / carts.length * 100) : 0;
+    const sectors = new Set(carts.map(cart => cart.sectorId)).size;
+
+    document.getElementById("dashboard-total-carts").textContent = carts.length;
+    document.getElementById("dashboard-total-carts-detail").textContent = `Em ${sectors} setores`;
+    document.getElementById("dashboard-inspections-today").textContent = completedToday.length;
+    document.getElementById("dashboard-inspections-today-detail").textContent = `${completionRate}% dos carrinhos conferidos`;
+    document.getElementById("dashboard-pending-items").textContent = pendingItems;
+    document.getElementById("dashboard-pending-items-detail").textContent = `Em ${withPendings} carrinhos`;
+    document.getElementById("dashboard-no-inspection-today").textContent = noInspectionToday;
+    document.getElementById("dashboard-no-inspection-today-detail").textContent = "Sem conferência concluída hoje";
+
+    document.getElementById("dashboard-compliant-count").textContent = compliant;
+    document.getElementById("dashboard-pending-count").textContent = withPendings;
+    document.getElementById("dashboard-never-inspected-count").textContent = neverInspected;
+
+    const percentage = value => carts.length ? value / carts.length * 100 : 0;
+    document.getElementById("dashboard-compliant-bar").style.width = `${percentage(compliant)}%`;
+    document.getElementById("dashboard-pending-bar").style.width = `${percentage(withPendings)}%`;
+    document.getElementById("dashboard-never-inspected-bar").style.width = `${percentage(neverInspected)}%`;
+
+    const recent = completed.slice().sort((a, b) => new Date(b.finishedAt) - new Date(a.finishedAt)).slice(0, 4);
+    document.getElementById("dashboard-recent-activity").innerHTML = recent.length
+        ? recent.map(inspection => {
+            const missing = inspection.items.filter(item => item.pendingQuantity > 0).length;
+            return `<div class="activity">
+                <div class="activity-icon ${missing ? "orange" : "green"}">${missing ? "!" : "✓"}</div>
+                <div><strong>${escapeHtml(inspection.sectorName)} · ${escapeHtml(inspection.cartCode)}</strong>
+                <span>${missing} item(ns) pendente(s) · ${formatDateTime(inspection.finishedAt)}</span>
+                <span>Responsável: ${escapeHtml(inspection.employeeName)}</span></div>
+            </div>`;
+        }).join("")
+        : '<p class="empty-state">Nenhuma conferência finalizada registrada.</p>';
+}
+
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
+}
+
+function formatDateTime(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat("pt-BR", {
+        dateStyle: "short", timeStyle: "short"
+    }).format(date);
+}
+
+async function getInspectionHistory() {
+    const response = await requestOrThrow(`${API_BASE_URL}/api/inspection/history`);
+    const data = await response.json();
+    if (!Array.isArray(data)) throw new Error("Resposta inesperada ao buscar o histórico.");
+    return data.map(inspection => ({
+        ...inspection,
+        items: (inspection.items ?? []).map(item => ({
+            ...item,
+            replenishments: item.replenishments ?? [],
+            missingQuantity: item.missingQuantity ?? 0,
+            replenishedQuantity: item.replenishedQuantity ?? 0,
+            pendingQuantity: item.pendingQuantity ?? 0
+        }))
+    }));
+}
+
+async function loadDashboard(carts = null) {
+    try {
+        const cartList = carts ?? await getCarts();
+        const [history, pendings] = await Promise.all([getInspectionHistory(), getPendings()]);
+        currentInspectionHistory = history;
+        currentDashboardPendings = pendings;
+        renderDashboard(cartList, history, pendings);
+    } catch (error) {
+        if (error instanceof SessionExpiredError) return;
+        console.error(error);
+        toast("Não foi possível atualizar os indicadores do Dashboard.");
+    }
+}
+
+function renderHistory(inspections) {
+    const tbody = document.getElementById("history-table");
+    if (!inspections.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhuma conferência encontrada.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = inspections.map(inspection => {
+        const completed = inspection.status === "Completed";
+        const items = inspection.items.map(item => {
+            const replenishments = item.replenishments.map(r =>
+                `<div class="history-replenishment">Reposição: ${r.quantity} · ${escapeHtml(r.employeeName)} · ${formatDateTime(r.replenishedAt)}</div>`
+            ).join("");
+            return `<tr><td>${escapeHtml(item.itemName)}</td><td>${item.expectedQuantity}</td>
+                <td>${item.foundQuantity ?? "—"}</td><td>${item.missingQuantity}</td>
+                <td>${item.replenishedQuantity}</td><td>${item.pendingQuantity}</td></tr>
+                ${replenishments ? `<tr><td colspan="6">${replenishments}</td></tr>` : ""}`;
+        }).join("");
+
+        return `<tr>
+            <td>${formatDateTime(inspection.startedAt)}</td>
+            <td><strong>${escapeHtml(inspection.cartCode)}</strong></td>
+            <td>${escapeHtml(inspection.sectorName)}</td>
+            <td>${escapeHtml(inspection.employeeName)}</td>
+            <td><span class="badge ${completed ? "badge-green" : "badge-blue"}">${completed ? "Finalizada" : "Em andamento"}</span></td>
+            <td><details class="history-details"><summary>${inspection.items.length} item(ns)</summary>
+                <div class="table-card history-items"><table>
+                    <thead><tr><th>Item</th><th>Esperado</th><th>Encontrado</th><th>Faltando</th><th>Reposto</th><th>Pendente</th></tr></thead>
+                    <tbody>${items || '<tr><td colspan="6">Nenhum item registrado.</td></tr>'}</tbody>
+                </table></div></details></td>
+        </tr>`;
+    }).join("");
+}
+
+async function loadHistory() {
+    const button = document.getElementById("refresh-history");
+    const tbody = document.getElementById("history-table");
+    button.disabled = true;
+    tbody.innerHTML = '<tr><td colspan="6">Carregando histórico...</td></tr>';
+    try {
+        renderHistory(await getInspectionHistory());
+    } catch (error) {
+        if (error instanceof SessionExpiredError) return;
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="6">Não foi possível carregar o histórico. Tente novamente.</td></tr>';
+    } finally {
+        button.disabled = false;
+    }
 }
 
 function renderSectors(sectorsList, cartsList, filter = "") {
@@ -525,10 +670,9 @@ async function initApp() {
 
     renderSectors(sectors, carts);
     renderCarts(carts);
-    renderDashboard(carts);
-
     const items = await getItems();
     renderItems(items);
+    await loadDashboard(carts);
 }
 
 // ============ LOGIN REAL (chama a API, guarda o token) ============
@@ -569,6 +713,8 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 });
 
 document.getElementById("logout").addEventListener("click", logout);
+document.getElementById("refresh-history").addEventListener("click", loadHistory);
+document.querySelector(".nav-item[data-page=\"dashboard\"]")?.addEventListener("click", () => loadDashboard());
 
 document.querySelectorAll("[data-page]").forEach(btn => {
     btn.addEventListener("click", () => showPage(btn.dataset.page));
