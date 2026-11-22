@@ -13,5 +13,6 @@ public interface IInspectionRepository : IRepository<Inspection>
     Task<Inspection?> GetLastCompletedByEmergencyCartIdAsync(Guid emergencyCartId, CancellationToken cancellationToken);
     Task<List<Inspection>> GetLastCompletedOfEachCartWithItemDetailsAsync(CancellationToken cancellationToken);
     Task<Inspection?> GetByIdWithReplenishmentsAsync(Guid inspectionId, CancellationToken cancellationToken);
-
+    Task<(List<Inspection> Items, int TotalCount)> GetCompletedPageAsync(Guid? emergencyCartId, int page, int pageSize, CancellationToken cancellationToken);
+    Task<List<Inspection>> GetCompletedForExportAsync(Guid? emergencyCartId, int limit, CancellationToken cancellationToken);
 }

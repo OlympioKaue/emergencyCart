@@ -105,6 +105,35 @@ namespace EmergencyCart.API.Migrations
                     b.ToTable("Employee", (string)null);
                 });
 
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.ExportLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("EmergencyCartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExportedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Format")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecordCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ExportedAt");
+
+                    b.ToTable("ExportLog", (string)null);
+                });
+
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -137,6 +166,12 @@ namespace EmergencyCart.API.Migrations
                         .HasFilter("[Status] = 1");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("Status", "FinishedAt")
+                        .HasDatabaseName("IX_Inspection_Status_FinishedAt");
+
+                    b.HasIndex("EmergencyCartId", "Status", "FinishedAt")
+                        .HasDatabaseName("IX_Inspection_EmergencyCartId_Status_FinishedAt");
 
                     b.ToTable("Inspection", (string)null);
                 });
@@ -360,6 +395,17 @@ namespace EmergencyCart.API.Migrations
 
                     b.Navigation("Password")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.ExportLog", b =>
+                {
+                    b.HasOne("EmergencyCart.Domain.AccountContext.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("EmergencyCart.Domain.AccountContext.Entities.Inspection", b =>

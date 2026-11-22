@@ -260,5 +260,54 @@ namespace EmergencyCart.API.Controllers
             var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.GetPending.Query());
             return Ok(result.Value);
         }
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpGet("history")]
+        [ProducesResponseType(typeof(EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetHistory.Response), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetHistory(
+        [FromServices] ISender sender,
+        [FromQuery] Guid? emergencyCartId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+        {
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.Get.GetHistory.Query(emergencyCartId, page, pageSize));
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.From(result.Error));
+
+            return Ok(result.Value);
+        }
+
+
+        [Authorize(Roles = "Pharmacist,Nurse")]
+        [HttpGet("history/export")]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ExportHistory(
+        [FromServices] ISender sender,
+        [FromQuery] EmergencyCart.Domain.AccountContext.Enums.ExportFormat format,
+        [FromQuery] Guid? emergencyCartId)
+        {
+            var employeeIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(employeeIdClaim, out var employeeId))
+                return Unauthorized();
+
+            var result = await sender.Send(new EmergencyCart.Application.AccountContext.UseCases.Inspections.ExportHistory.Command(
+                emergencyCartId, format, employeeId));
+
+            if (result.IsFailure)
+            {
+                return result.Error.type switch
+                {
+                    ErrorType.NotFound => NotFound(ErrorResponse.From(result.Error)),
+                    _ => BadRequest(ErrorResponse.From(result.Error))
+                };
+            }
+
+            return File(result.Value.Content, result.Value.ContentType, result.Value.FileName);
+        }
     }
 }

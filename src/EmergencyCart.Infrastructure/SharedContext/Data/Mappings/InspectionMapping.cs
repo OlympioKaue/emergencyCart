@@ -47,6 +47,12 @@ public class InspectionMapping : IEntityTypeConfiguration<Inspection>
             .HasForeignKey(x => x.InspectionId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(x => new { x.Status, x.FinishedAt })
+            .HasDatabaseName("IX_Inspection_Status_FinishedAt");
+
+        builder.HasIndex(x => new { x.EmergencyCartId, x.Status, x.FinishedAt })
+            .HasDatabaseName("IX_Inspection_EmergencyCartId_Status_FinishedAt");
+
         builder.Navigation(x => x.InspectionItems).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

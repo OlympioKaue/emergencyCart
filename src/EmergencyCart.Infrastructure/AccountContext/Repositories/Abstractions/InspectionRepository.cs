@@ -36,6 +36,45 @@ internal sealed class InspectionRepository(AppDbContext dbContext) : IInspection
         .ThenInclude(x => x.Replenishments)
         .FirstOrDefaultAsync(i => i.Id == inspectionId, cancellationToken);
 
+    public async Task<List<Inspection>> GetCompletedForExportAsync(Guid? emergencyCartId, int limit, CancellationToken cancellationToken)
+     => await dbContext.Inspections
+        .AsNoTracking()
+        .Where(x => x.Status == InspectionStatus.Completed
+            && x.FinishedAt != null
+            && (emergencyCartId == null || x.EmergencyCartId == emergencyCartId))
+        .OrderByDescending(x => x.FinishedAt)
+          .ThenByDescending(x => x.Id)
+        .Take(limit)
+        .Include(x => x.EmergencyCart)
+          .ThenInclude(c => c.Sector)
+        .Include(x => x.Employee)
+        .Include(x => x.InspectionItems)
+        .ToListAsync(cancellationToken);
+
+    public async Task<(List<Inspection> Items, int TotalCount)> GetCompletedPageAsync(Guid? emergencyCartId, int page, int pageSize, CancellationToken cancellationToken)
+    {
+        var query = dbContext.Inspections
+            .AsNoTracking()
+            .Where(x => x.Status == InspectionStatus.Completed
+            && x.FinishedAt != null
+            && (emergencyCartId == null || x.EmergencyCartId == emergencyCartId));
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+         .OrderByDescending(x => x.FinishedAt)
+          .ThenByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+             .Take(pageSize)
+         .Include(x => x.EmergencyCart)
+          .ThenInclude(c => c.Sector)
+         .Include(x => x.Employee)
+         .Include(x => x.InspectionItems)
+         .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
+
     public async Task<Inspection?> GetInProgressByEmergencyCartIdAsync(Guid emergencyCartId, CancellationToken cancellationToken)
     => await dbContext.Inspections
         .AsNoTracking()

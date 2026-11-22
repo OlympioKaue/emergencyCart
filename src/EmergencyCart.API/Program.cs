@@ -3,6 +3,7 @@ using EmergencyCart.Application.SharedContext.DependencyInjections;
 using EmergencyCart.Infrastructure.SharedContext.DepedencyInjections;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+QuestPDF.Settings.License = LicenseType.Community;
 
 
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -8,6 +8,7 @@ Frontend demonstrativo do EmergencyCart usando HTML + CSS + JavaScript puro.
 - Setores
 - Carrinhos
 - Conferência
+- Reposição
 
 ## Como executar
 Pode abrir `index.html` diretamente no navegador para visualizar a interface.

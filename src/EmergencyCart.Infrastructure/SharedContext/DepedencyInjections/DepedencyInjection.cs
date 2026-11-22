@@ -2,6 +2,7 @@
 using EmergencyCart.Application.AccountContext.Repositories.Abstractions.Security;
 using EmergencyCart.Application.SharedContext.Repositories.Abstractions;
 using EmergencyCart.Infrastructure.AccountContext.Repositories.Abstractions;
+using EmergencyCart.Infrastructure.AccountContext.Repositories.Services;
 using EmergencyCart.Infrastructure.AccountContext.Security.Token;
 using EmergencyCart.Infrastructure.SharedContext.Data;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,8 @@ public static class DepedencyInjection
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<ICartItemRepository, CartItemRepository>();
         services.AddScoped<IInspectionRepository, InspectionRepository>();
+        services.AddScoped<IExportLogRepository, ExportLogRepository>();
+        services.AddScoped<IHistoryFileGenerator, HistoryFileGenerator>();
 
     }
 

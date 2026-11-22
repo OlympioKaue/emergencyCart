@@ -12,6 +12,11 @@ let cartStatusRequestId = 0;
 let cartStatusReturnPage = "carts";
 let pendingsRequestId = 0;
 let currentPendings = [];
+let historyPage = 1;
+let historyTotalCount = 0;
+let historyRequestId = 0;
+const historyPageSize = 20;
+let historyCartFilterLoaded = false;
 
 class SessionExpiredError extends Error {}
 
@@ -49,6 +54,7 @@ function logout() {
     resetConferencePanel();
     clearCartStatus();
     clearPendings();
+    clearHistory();
 }
 
 function showPage(page) {
@@ -68,13 +74,32 @@ function showPage(page) {
         "cart-status": "Situação do carrinho",
         conference: "Conferência",
         pendings: "Pendências",
+        history: "Histórico de conferências",
         employees: "Funcionários"
     };
     document.getElementById("page-title").textContent = titles[page];
 
+    if (page === "dashboard" && authToken) refreshDashboard();
     if (page === "conference") loadConferencePage();
     if (page === "pendings") loadPendings();
+    if (page === "history") loadHistory();
 }
+
+function clearHistory() {
+    historyRequestId++;
+    historyPage = 1;
+    historyTotalCount = 0;
+    historyCartFilterLoaded = false;
+
+    document.getElementById("history-table").replaceChildren();
+
+    setHistoryMessage("");
+
+    document.getElementById("history-prev").disabled = true;
+    document.getElementById("history-next").disabled = true;
+}
+
+
 
 // ============ PERMISSÕES POR PERFIL (front-end só esconde botão; quem protege de verdade é o [Authorize] do backend) ============
 function applyRolePermissions() {
@@ -98,6 +123,10 @@ function applyRolePermissions() {
 
     const pendingsNav = document.querySelector('.nav-item[data-page="pendings"]');
     if (pendingsNav) pendingsNav.style.display = canDoConference ? "" : "none";
+
+    const historyNav = document.querySelector('.nav-item[data-page="history"]');
+    if (historyNav) historyNav.style.display = canDoConference ? "" : "none";
+
 }
 
 
@@ -108,10 +137,178 @@ const roleLabels = {
 };
 
 function renderDashboard(carts) {
-    document.querySelector("#page-dashboard .stat-card:nth-child(1) strong").textContent = carts.length;
+    const totalCard = document.querySelector(
+        "#page-dashboard .stat-card:nth-child(1)"
+    );
+
+    totalCard.querySelector("strong").textContent = carts.length;
 
     const uniqueSectors = new Set(carts.map(c => c.sectorId)).size;
-    document.querySelector("#page-dashboard .stat-card:nth-child(1) small").textContent = `Em ${uniqueSectors} setores`;
+
+    totalCard.querySelector("small").textContent =
+        `Em ${uniqueSectors} setores`;
+}
+
+// painel "Status dos carrinhos": usa o total de carrinhos e quantos têm pendência (null = sem dados)
+function renderCartStatusOverview(total, withPending) {
+    const hasData = total !== null && total > 0;
+    const percent = count => hasData ? Math.round((count / total) * 100) : 0;
+    const ok = hasData ? total - withPending : 0;
+    const pending = hasData ? withPending : 0;
+
+    document.getElementById("status-ok-count").textContent = hasData ? ok : "—";
+    document.getElementById("status-ok-bar").style.width = `${percent(ok)}%`;
+    document.getElementById("status-pending-count").textContent = hasData ? pending : "—";
+    document.getElementById("status-pending-bar").style.width = `${percent(pending)}%`;
+}
+
+async function loadDashboardData(carts) {
+    const canViewInspections =
+        currentRole === "Nurse" || currentRole === "Pharmacist";
+
+    const historyCard = document.querySelector(
+        "#page-dashboard .stat-card:nth-child(2)"
+    );
+
+    const pendingCard = document.querySelector(
+        "#page-dashboard .stat-card:nth-child(3)"
+    );
+
+    const lastInspectionCard = document.querySelector(
+        "#page-dashboard .stat-card:nth-child(4)"
+    );
+
+    if (!canViewInspections) {
+        historyCard.querySelector("strong").textContent = "—";
+        historyCard.querySelector("small").textContent = "Sem acesso ao histórico";
+
+        pendingCard.querySelector("strong").textContent = "—";
+        pendingCard.querySelector("small").textContent = "Sem acesso às pendências";
+
+        lastInspectionCard.querySelector("strong").textContent = "—";
+        lastInspectionCard.querySelector("small").textContent = "Sem acesso ao histórico";
+
+        renderCartStatusOverview(null, null);
+
+        return;
+    }
+
+    const results = await Promise.allSettled([
+        getHistory(1),
+        getPendings()
+    ]);
+
+    const historyResult = results[0];
+    const pendingsResult = results[1];
+
+    // Conferências finalizadas
+    if (historyResult.status === "fulfilled") {
+        const history = historyResult.value;
+
+        historyCard.querySelector("span").textContent =
+            "Conferências finalizadas";
+
+        historyCard.querySelector("strong").textContent =
+            history.totalCount;
+
+        historyCard.querySelector("small").textContent =
+            "Total registrado no histórico";
+
+        const activitiesPanel = document.querySelector(
+            "#page-dashboard .content-grid .panel:nth-child(2)"
+        );
+
+        activitiesPanel.querySelectorAll(".activity, .activity-empty").forEach(element => {
+            element.remove();
+        });
+
+        const recentInspections = history.items.slice(0, 3);
+
+        if (recentInspections.length === 0) {
+            const message = document.createElement("p");
+            message.className = "activity-empty";
+            message.textContent = "Nenhuma conferência finalizada.";
+            activitiesPanel.appendChild(message);
+        }
+
+        recentInspections.forEach(item => {
+            const activity = document.createElement("div");
+            activity.className = "activity";
+
+            const icon = document.createElement("div");
+            icon.className = "activity-icon green";
+            icon.textContent = "✓";
+
+            const info = document.createElement("div");
+
+            const title = document.createElement("strong");
+            title.textContent = item.sectorName;
+
+            const description = document.createElement("span");
+            description.textContent =
+                `Carrinho ${item.cartCode} • ${formatDateTime(item.finishedAt)}`;
+
+            info.append(title, description);
+            activity.append(icon, info);
+
+            activitiesPanel.appendChild(activity);
+        });
+
+        const lastInspection = history.items[0];
+
+        lastInspectionCard.querySelector("span").textContent =
+            "Última conferência";
+
+        lastInspectionCard.querySelector("strong").textContent =
+            lastInspection
+                ? formatDateTime(lastInspection.finishedAt)
+                : "—";
+
+        lastInspectionCard.querySelector("small").textContent =
+            lastInspection
+                ? `Carrinho ${lastInspection.cartCode}`
+                : "Nenhuma conferência finalizada";
+    } else {
+        console.error("Erro ao carregar histórico do dashboard:", historyResult.reason);
+
+        historyCard.querySelector("strong").textContent = "—";
+        historyCard.querySelector("small").textContent = "Não foi possível carregar";
+    }
+
+    // Itens pendentes
+    if (pendingsResult.status === "fulfilled") {
+        const pendings = pendingsResult.value;
+
+        const totalPendingItems = pendings.reduce(
+            (total, pending) => total + pending.items.length,
+            0
+        );
+
+        pendingCard.querySelector("span").textContent =
+            "Itens pendentes";
+
+        pendingCard.querySelector("strong").textContent =
+            totalPendingItems;
+
+        pendingCard.querySelector("small").textContent =
+            `${pendings.length} carrinhos com pendências`;
+
+        renderCartStatusOverview(carts.length, pendings.length);
+    } else {
+        console.error("Erro ao carregar pendências do dashboard:", pendingsResult.reason);
+
+        pendingCard.querySelector("strong").textContent = "—";
+        pendingCard.querySelector("small").textContent = "Não foi possível carregar";
+
+        renderCartStatusOverview(null, null);
+    }
+}
+
+// recarrega os números do dashboard sempre que a tela é aberta
+async function refreshDashboard() {
+    const carts = await getCarts();
+    renderDashboard(carts);
+    await loadDashboardData(carts);
 }
 
 function renderSectors(sectorsList, cartsList, filter = "") {
@@ -519,13 +716,13 @@ async function configureCart(cartId) {
     renderCartItems(cartItems);
 }
 
+// o dashboard é carregado pelo showPage("dashboard"), então aqui ficam só as outras telas
 async function initApp() {
     const sectors = await getSectors();
     const carts = await getCarts();
 
     renderSectors(sectors, carts);
     renderCarts(carts);
-    renderDashboard(carts);
 
     const items = await getItems();
     renderItems(items);
@@ -813,6 +1010,12 @@ const conferenceErrors = {
         404: "Conferência ou item não encontrado. A lista foi atualizada.",
         409: "Esta pendência mudou (nova conferência no carrinho). A lista foi atualizada.",
         fallback: "Não foi possível salvar a observação."
+    },
+    export: {
+        400: "Não foi possível exportar. Se houver muitos registros, filtre por um carrinho.",
+        403: "Seu perfil não tem permissão para exportar o histórico.",
+        404: "Não há conferências finalizadas para exportar.",
+        fallback: "Não foi possível exportar o histórico."
     }
 };
 
@@ -1583,6 +1786,267 @@ async function handleEditNote(inspectionId, item, button) {
         if (error instanceof ApiError && (error.status === 404 || error.status === 409)) loadPendings();
     }
 }
+
+
+// ============ HISTÓRICO DE CONFERÊNCIAS (AC4) ============
+
+// Consulta o histórico paginado na API
+async function getHistory(page, emergencyCartId = null) {
+    const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(historyPageSize)
+    });
+
+    if (emergencyCartId) {
+        params.set("emergencyCartId", emergencyCartId);
+    }
+
+    const response = await requestOrThrow(
+        `${API_BASE_URL}/api/inspection/history?${params.toString()}`
+    );
+
+    const data = await response.json();
+
+    // A API retorna itemResponses, não items
+    if (!Array.isArray(data.itemResponses) ||
+        typeof data.totalCount !== "number") {
+        throw new Error("Resposta inesperada ao buscar o histórico.");
+    }
+
+    // Padroniza o nome para o restante do frontend
+    return {
+        ...data,
+        items: data.itemResponses
+    };
+}
+
+// Carrega os carrinhos disponíveis no filtro
+async function loadHistoryCartFilter() {
+    const select = document.getElementById("history-cart-filter");
+    const carts = await getCarts();
+
+    select.replaceChildren(
+        new Option("Todos os carrinhos", "")
+    );
+
+    carts.forEach(cart => {
+        select.appendChild(
+            new Option(
+                `Carrinho ${cart.code} - ${cart.sectorName}`,
+                cart.id
+            )
+        );
+    });
+}
+
+// Exibe mensagens na tela
+function setHistoryMessage(message) {
+    const element = document.getElementById("history-message");
+
+    element.textContent = message;
+    element.classList.toggle("hidden", !message);
+}
+
+// Formata os registros recebidos da API
+function renderHistory(items) {
+    const tbody = document.getElementById("history-table");
+
+    if (items.length === 0) {
+        tbody.replaceChildren();
+
+        setHistoryMessage(
+            "Nenhuma conferência finalizada encontrada."
+        );
+
+        return;
+    }
+
+    setHistoryMessage("");
+
+    const rows = items.map(item => {
+        const tr = document.createElement("tr");
+
+        const values = [
+            `Carrinho ${item.cartCode}`,
+            item.sectorName,
+            item.employeeName,
+            formatDateTime(item.finishedAt),
+            item.totalItems,
+            item.missingItems
+        ];
+
+        values.forEach((value, index) => {
+            const td = document.createElement("td");
+
+            if (index === 0) {
+                const strong = document.createElement("strong");
+                strong.textContent = value;
+                td.appendChild(strong);
+            } else {
+                td.textContent = String(value);
+            }
+
+            tr.appendChild(td);
+        });
+
+        return tr;
+    });
+
+    tbody.replaceChildren(...rows);
+}
+
+// Atualiza os controles de paginação
+function updateHistoryPagination(data) {
+    historyTotalCount = data.totalCount;
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(historyTotalCount / historyPageSize)
+    );
+
+    document.getElementById("history-pagination-info").textContent =
+        `Página ${data.page} de ${totalPages} | ${historyTotalCount} registros`;
+
+    document.getElementById("history-prev").disabled =
+        data.page <= 1;
+
+    document.getElementById("history-next").disabled =
+        data.page >= totalPages;
+}
+
+// Carrega o histórico
+async function loadHistory() {
+    const requestId = ++historyRequestId;
+
+    const refreshButton = document.getElementById("refresh-history");
+
+    refreshButton.disabled = true;
+
+    document.getElementById("history-table").replaceChildren();
+
+    setHistoryMessage("Carregando histórico...");
+
+    try {
+        if (!historyCartFilterLoaded) {
+            await loadHistoryCartFilter();
+            historyCartFilterLoaded = true;
+        }
+
+        const cartId = document.getElementById(
+            "history-cart-filter"
+        ).value;
+
+        const data = await getHistory(historyPage, cartId || null);
+
+        // Ignora respostas antigas
+        if (requestId !== historyRequestId) return;
+
+        renderHistory(data.items);
+        updateHistoryPagination(data);
+
+    } catch (error) {
+        if (error instanceof SessionExpiredError) return;
+
+        console.error(error);
+
+        if (requestId === historyRequestId) {
+            setHistoryMessage(
+                "Não foi possível carregar o histórico. Tente novamente."
+            );
+        }
+
+    } finally {
+        if (requestId === historyRequestId) {
+            refreshButton.disabled = false;
+        }
+    }
+}
+
+// ---- Exportação do histórico (o arquivo é gerado e registrado pelo back-end) ----
+const exportFormatLabels = {
+    csv: "CSV",
+    pdf: "PDF"
+};
+
+// desabilita os dois botões durante a exportação, para um clique duplo não gerar dois registros
+function setHistoryExportButtons(disabled) {
+    document.getElementById("export-history").disabled = disabled;
+    document.getElementById("export-history-pdf").disabled = disabled;
+}
+
+async function exportHistory(format) {
+    setHistoryExportButtons(true);
+
+    try {
+        const params = new URLSearchParams({ format });
+
+        // exporta com o mesmo filtro de carrinho que está na tela
+        const cartId = document.getElementById("history-cart-filter").value;
+        if (cartId) params.set("emergencyCartId", cartId);
+
+        const response = await requestOrThrow(
+            `${API_BASE_URL}/api/inspection/history/export?${params.toString()}`
+        );
+        const blob = await response.blob();
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `historico-conferencias-${new Date().toISOString().slice(0, 10)}.${format}`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        toast(`Arquivo ${exportFormatLabels[format]} exportado.`);
+    } catch (error) {
+        if (error instanceof SessionExpiredError) return;
+        console.error(error);
+        toast(conferenceErrorMessage("export", error));
+    } finally {
+        setHistoryExportButtons(false);
+    }
+}
+
+// Eventos da tela de histórico
+
+document.getElementById("refresh-history")
+    .addEventListener("click", loadHistory);
+
+document.getElementById("export-history")
+    .addEventListener("click", () => exportHistory("csv"));
+
+document.getElementById("export-history-pdf")
+    .addEventListener("click", () => exportHistory("pdf"));
+
+document.getElementById("history-cart-filter")
+    .addEventListener("change", () => {
+        historyPage = 1;
+        loadHistory();
+    });
+
+document.getElementById("history-prev")
+    .addEventListener("click", () => {
+        if (historyPage > 1) {
+            historyPage--;
+            loadHistory();
+        }
+    });
+
+document.getElementById("history-next")
+    .addEventListener("click", () => {
+        const totalPages = Math.max(
+            1,
+            Math.ceil(historyTotalCount / historyPageSize)
+        );
+
+        if (historyPage < totalPages) {
+            historyPage++;
+            loadHistory();
+        }
+    });
+
+
 
 document.getElementById("refresh-pendings").addEventListener("click", loadPendings);
 document.getElementById("cart-status-back").addEventListener("click", () => showPage(cartStatusReturnPage));
